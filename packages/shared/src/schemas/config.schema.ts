@@ -66,6 +66,8 @@ export const generationConfigSchema = z.object({
   showFields: fieldVisibilitySchema,
   bankDetails: bankDetailsSchema.optional(),
   footerText: z.string().max(500).optional(),
+  headerColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  taxRate: z.number().min(0).max(100).optional(),
 });
 
 export type CompanyInfoSchema = z.infer<typeof companyInfoSchema>;
