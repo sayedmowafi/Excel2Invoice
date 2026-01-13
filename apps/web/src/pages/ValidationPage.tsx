@@ -13,6 +13,8 @@ export default function ValidationPage() {
     queryKey: ['validation', sessionId],
     queryFn: () => api.validate(sessionId!),
     enabled: !!sessionId,
+    staleTime: 0, // Always re-validate
+    refetchOnMount: 'always', // Re-run validation when page is mounted
   });
 
   if (isLoading) {

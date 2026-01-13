@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +13,20 @@ export default function ConfigPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [config, setConfig] = useState<GenerationConfig>(DEFAULT_CONFIG);
+
+  // Fetch session to load saved config (for when user navigates back)
+  const { data: sessionData } = useQuery({
+    queryKey: ['session', sessionId],
+    queryFn: () => api.getSession(sessionId!),
+    enabled: !!sessionId,
+  });
+
+  // Initialize config from saved session config if available
+  useEffect(() => {
+    if (sessionData?.session?.config) {
+      setConfig(sessionData.session.config);
+    }
+  }, [sessionData]);
 
   const saveMutation = useMutation({
     mutationFn: () => api.saveConfig(sessionId!, config),
@@ -41,7 +55,7 @@ export default function ConfigPage() {
             <label className="block text-sm font-medium mb-1">Company Name *</label>
             <input
               type="text"
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 bg-background text-foreground border-input"
               value={config.company.name}
               onChange={(e) =>
                 setConfig((prev) => ({
@@ -57,7 +71,7 @@ export default function ConfigPage() {
               <label className="block text-sm font-medium mb-1">Phone</label>
               <input
                 type="text"
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 bg-background text-foreground border-input"
                 value={config.company.phone ?? ''}
                 onChange={(e) =>
                   setConfig((prev) => ({
@@ -72,7 +86,7 @@ export default function ConfigPage() {
               <label className="block text-sm font-medium mb-1">Email</label>
               <input
                 type="email"
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 bg-background text-foreground border-input"
                 value={config.company.email ?? ''}
                 onChange={(e) =>
                   setConfig((prev) => ({
@@ -87,7 +101,7 @@ export default function ConfigPage() {
           <div>
             <label className="block text-sm font-medium mb-1">Address</label>
             <textarea
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 bg-background text-foreground border-input"
               rows={2}
               value={config.company.address ?? ''}
               onChange={(e) =>
@@ -148,7 +162,7 @@ export default function ConfigPage() {
             <div>
               <label className="block text-sm font-medium mb-1">Currency</label>
               <select
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 bg-background text-foreground border-input"
                 value={config.currency}
                 onChange={(e) => {
                   const currency = CURRENCIES.find((c) => c.code === e.target.value);
@@ -170,7 +184,7 @@ export default function ConfigPage() {
             <div>
               <label className="block text-sm font-medium mb-1">Date Format</label>
               <select
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 bg-background text-foreground border-input"
                 value={config.dateFormat}
                 onChange={(e) =>
                   setConfig((prev) => ({
@@ -197,7 +211,7 @@ export default function ConfigPage() {
         </CardHeader>
         <CardContent>
           <textarea
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 bg-background text-foreground border-input"
             rows={2}
             value={config.footerText ?? ''}
             onChange={(e) =>

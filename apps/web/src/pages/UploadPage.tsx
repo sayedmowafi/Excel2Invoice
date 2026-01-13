@@ -100,7 +100,7 @@ export default function UploadPage() {
                 ? 'border-primary bg-primary/5'
                 : isDragReject
                 ? 'border-destructive bg-destructive/5'
-                : 'border-gray-300 hover:border-primary hover:bg-primary/5'
+                : 'border-muted-foreground/30 hover:border-primary hover:bg-primary/5'
             } ${uploadMutation.isPending ? 'pointer-events-none opacity-50' : ''}`}
           >
             <input {...getInputProps()} />

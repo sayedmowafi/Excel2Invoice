@@ -19,26 +19,26 @@ export default function DownloadPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <Card className="border-green-200">
+      <Card className="border-green-600/30">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+          <div className="mx-auto w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
           </div>
           <CardTitle className="text-2xl">Generation Complete!</CardTitle>
           <CardDescription>Your invoices have been generated successfully</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{stats.valid}</div>
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.valid}</div>
               <p className="text-sm text-muted-foreground">Generated</p>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-yellow-600">{stats.warnings}</div>
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.warnings}</div>
               <p className="text-sm text-muted-foreground">Warnings</p>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-red-600">{stats.errors}</div>
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.errors}</div>
               <p className="text-sm text-muted-foreground">Skipped</p>
             </div>
           </div>

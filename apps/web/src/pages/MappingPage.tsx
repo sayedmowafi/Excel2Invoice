@@ -57,15 +57,25 @@ export default function MappingPage() {
   const [sheetMappings, setSheetMappings] = useState<Record<string, Record<string, string>>>({});
   const [activeSheet, setActiveSheet] = useState<string>('');
 
+  // Fetch auto-detected column mappings
   const { data, isLoading, error } = useQuery({
     queryKey: ['columns', sessionId],
     queryFn: () => api.getColumnMappings(sessionId!),
     enabled: !!sessionId,
   });
 
-  // Initialize mappings from auto-detected values
+  // Also fetch session to get saved mappings (for when user navigates back)
+  const { data: sessionData } = useQuery({
+    queryKey: ['session', sessionId],
+    queryFn: () => api.getSession(sessionId!),
+    enabled: !!sessionId,
+  });
+
+  // Initialize mappings - prefer saved mappings from session, fallback to auto-detected
   useEffect(() => {
     if (data) {
+      const savedMappings = sessionData?.session?.columnMappings;
+      const hasSavedMappings = savedMappings && savedMappings.length > 0;
       const isMultiSheet = data.isMultiSheet && data.sheetMappings && data.sheets;
 
       if (isMultiSheet && data.sheets) {
@@ -73,11 +83,23 @@ export default function MappingPage() {
         const initial: Record<string, Record<string, string>> = {};
 
         for (const sheet of data.sheets) {
-          const sheetAutoMappings = data.sheetMappings?.[sheet.name] ?? [];
           initial[sheet.name] = {};
 
+          if (hasSavedMappings) {
+            // Use saved mappings for this sheet
+            savedMappings
+              .filter((m: ColumnMapping & { sheetName?: string }) => m.sheetName === sheet.name)
+              .forEach((m: ColumnMapping) => {
+                if (m.targetField) {
+                  initial[sheet.name][m.sourceColumn] = m.targetField;
+                }
+              });
+          }
+
+          // Fill in any missing columns with auto-detected mappings
+          const sheetAutoMappings = data.sheetMappings?.[sheet.name] ?? [];
           sheetAutoMappings.forEach((m: ColumnMapping) => {
-            if (m.targetField) {
+            if (m.targetField && !initial[sheet.name][m.sourceColumn]) {
               initial[sheet.name][m.sourceColumn] = m.targetField;
             }
           });
@@ -88,20 +110,31 @@ export default function MappingPage() {
           setActiveSheet(data.sheets[0].name);
         }
       } else {
-        // Single-sheet mode: use primary mappings
+        // Single-sheet mode
         const initial: Record<string, string> = {};
+        const sheetName = data.sheets?.[0]?.name ?? 'Sheet1';
+
+        if (hasSavedMappings) {
+          // Use saved mappings
+          savedMappings.forEach((m: ColumnMapping) => {
+            if (m.targetField) {
+              initial[m.sourceColumn] = m.targetField;
+            }
+          });
+        }
+
+        // Fill in any missing columns with auto-detected mappings
         data.mappings.forEach((m: ColumnMapping) => {
-          if (m.targetField) {
+          if (m.targetField && !initial[m.sourceColumn]) {
             initial[m.sourceColumn] = m.targetField;
           }
         });
 
-        const sheetName = data.sheets?.[0]?.name ?? 'Sheet1';
         setSheetMappings({ [sheetName]: initial });
         setActiveSheet(sheetName);
       }
     }
-  }, [data]);
+  }, [data, sessionData]);
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -214,7 +247,7 @@ export default function MappingPage() {
               <td className="py-3 font-mono text-sm">{mapping.sourceColumn}</td>
               <td className="py-3">
                 <select
-                  className="w-full border rounded px-2 py-1 text-sm"
+                  className="w-full border rounded px-2 py-1 text-sm bg-background text-foreground border-input"
                   value={currentMappings[mapping.sourceColumn] ?? mapping.targetField ?? ''}
                   onChange={(e) => updateMapping(sheetName, mapping.sourceColumn, e.target.value)}
                 >
@@ -365,24 +398,24 @@ export default function MappingPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
-                <Users className="w-4 h-4 text-blue-600" />
+              <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 rounded-lg">
+                <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>Customers</span>
               </div>
               <span className="text-muted-foreground">linked by Customer ID</span>
-              <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
-                <FileText className="w-4 h-4 text-green-600" />
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 rounded-lg">
+                <FileText className="w-4 h-4 text-green-600 dark:text-green-400" />
                 <span>Invoices</span>
               </div>
               <span className="text-muted-foreground">linked by Invoice ID</span>
-              <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 rounded-lg">
-                <Package className="w-4 h-4 text-purple-600" />
+              <div className="flex items-center gap-2 px-3 py-2 bg-purple-500/10 rounded-lg">
+                <Package className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span>Line Items</span>
               </div>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              Map <code className="px-1 bg-gray-100 rounded">customer_id</code> in both customers and invoices sheets,
-              and <code className="px-1 bg-gray-100 rounded">invoice_id</code> in both invoices and items sheets to link the data together.
+              Map <code className="px-1 bg-muted rounded">customer_id</code> in both customers and invoices sheets,
+              and <code className="px-1 bg-muted rounded">invoice_id</code> in both invoices and items sheets to link the data together.
             </p>
           </CardContent>
         </Card>

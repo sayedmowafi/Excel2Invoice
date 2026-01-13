@@ -180,24 +180,24 @@ export default function SheetSelectionPage() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
-              <Users className="w-4 h-4 text-blue-600" />
+            <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 rounded-lg">
+              <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Customers</span>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
-            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
-              <FileText className="w-4 h-4 text-green-600" />
+            <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 rounded-lg">
+              <FileText className="w-4 h-4 text-green-600 dark:text-green-400" />
               <span>Invoices</span>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
-            <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 rounded-lg">
-              <Package className="w-4 h-4 text-purple-600" />
+            <div className="flex items-center gap-2 px-3 py-2 bg-purple-500/10 rounded-lg">
+              <Package className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               <span>Line Items</span>
             </div>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            We'll link customers to invoices using <code className="px-1 bg-gray-100 rounded">customer_id</code>,
-            and line items to invoices using <code className="px-1 bg-gray-100 rounded">invoice_id</code>.
+            We'll link customers to invoices using <code className="px-1 bg-muted rounded">customer_id</code>,
+            and line items to invoices using <code className="px-1 bg-muted rounded">invoice_id</code>.
           </p>
         </CardContent>
       </Card>
