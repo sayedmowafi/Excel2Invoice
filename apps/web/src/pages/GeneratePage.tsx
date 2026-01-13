@@ -14,6 +14,7 @@ export default function GeneratePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, percentage: 0 });
   const [currentInvoice, setCurrentInvoice] = useState('');
   const [status, setStatus] = useState<'connecting' | 'generating' | 'complete' | 'error'>('connecting');
@@ -62,6 +63,7 @@ export default function GeneratePage() {
     newSocket.on('connect', () => {
       console.log('Connected to WebSocket');
       clearTimeout(connectionTimeout);
+      setIsConnected(true);
       newSocket.emit('join-session', sessionId);
     });
 
@@ -109,11 +111,11 @@ export default function GeneratePage() {
 
   // Start generation once socket is connected
   useEffect(() => {
-    if (socket?.connected && !hasStarted.current && !generateMutation.isPending && !generateMutation.data) {
+    if (isConnected && !hasStarted.current && !generateMutation.isPending && !generateMutation.data) {
       hasStarted.current = true;
       generateMutation.mutate();
     }
-  }, [socket?.connected, generateMutation]);
+  }, [isConnected, generateMutation]);
 
   const totalInvoices = sessionData?.session?.stats?.valid ?? progress.total;
 
@@ -165,9 +167,14 @@ export default function GeneratePage() {
                   className="mt-4"
                   onClick={() => {
                     hasStarted.current = false;
+                    setIsConnected(false);
                     setError(null);
                     setStatus('connecting');
                     generateMutation.reset();
+                    // Reconnect socket
+                    if (socket) {
+                      socket.connect();
+                    }
                   }}
                 >
                   Try Again
