@@ -85,18 +85,30 @@ npm install
 npm run build -w @excel-to-invoice/shared
 ```
 
-4. Start the development servers:
+4. Start both servers (API + Web):
 ```bash
-# Terminal 1 - API Server (runs on port 3001)
-cd apps/api
-npm run dev
-
-# Terminal 2 - Web App (runs on port 5173)
-cd apps/web
 npm run dev
 ```
 
+This will start:
+- **API Server** on http://localhost:3001
+- **Web App** on http://localhost:5173
+
 5. Open http://localhost:5173 in your browser
+
+### Alternative: Run Servers Separately
+
+If you prefer to run the servers in separate terminals:
+
+```bash
+# Terminal 1 - API Server
+npm run dev:api
+
+# Terminal 2 - Web App
+npm run dev:web
+```
+
+**Note:** Both servers must be running for PDF generation to work!
 
 ## Project Structure
 
@@ -165,7 +177,7 @@ VITE_API_URL=http://localhost:3001
 
 ## License
 
-This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
+This project is licensed under a custom non-commercial license.
 
 **You are free to:**
 - Share - copy and redistribute the material in any medium or format
@@ -175,7 +187,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial 4.
 - **Attribution** - You must give appropriate credit
 - **NonCommercial** - You may not use the material for commercial purposes
 
-For commercial use, please contact the author.
+**For commercial use or licensing inquiries, please contact the author at: sayed@sayedmowafi.dev**
 
 ## Disclaimer
 
@@ -186,5 +198,8 @@ This software is provided for educational and personal use only. The author is n
 This is a portfolio/educational project. Contributions, issues, and feature requests are welcome!
 
 ## Author
+
+**Sayed Mowafi**
+Email: sayed@sayedmowafi.dev
 
 Created as a portfolio project demonstrating full-stack engineering capabilities.

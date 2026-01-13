@@ -43,17 +43,33 @@ export default function GeneratePage() {
 
   // Connect to WebSocket on the API server
   useEffect(() => {
+    let connectionTimeout: NodeJS.Timeout;
+
     const newSocket = io(API_URL, {
       transports: ['websocket', 'polling'],
+      timeout: 10000,
+      reconnectionAttempts: 3,
     });
+
+    // Set a timeout to show error if connection takes too long
+    connectionTimeout = setTimeout(() => {
+      if (!newSocket.connected) {
+        setError(`Cannot connect to API server at ${API_URL}. Make sure the API server is running (cd apps/api && npm run dev)`);
+        setStatus('error');
+      }
+    }, 10000);
 
     newSocket.on('connect', () => {
       console.log('Connected to WebSocket');
+      clearTimeout(connectionTimeout);
       newSocket.emit('join-session', sessionId);
     });
 
     newSocket.on('connect_error', (err) => {
       console.error('WebSocket connection error:', err);
+      clearTimeout(connectionTimeout);
+      setError(`Cannot connect to API server. Make sure the API server is running on ${API_URL}`);
+      setStatus('error');
     });
 
     newSocket.on('progress', (data) => {
@@ -85,6 +101,7 @@ export default function GeneratePage() {
     setSocket(newSocket);
 
     return () => {
+      clearTimeout(connectionTimeout);
       newSocket.emit('leave-session', sessionId);
       newSocket.close();
     };
@@ -130,10 +147,19 @@ export default function GeneratePage() {
                 </p>
               </div>
             ) : status === 'error' ? (
-              <div className="text-red-600 dark:text-red-400 text-center">
+              <div className="text-red-600 dark:text-red-400 text-center max-w-md">
                 <XCircle className="w-16 h-16 mx-auto mb-4" />
-                <p className="text-lg font-medium">Generation failed</p>
+                <p className="text-lg font-medium">Connection Failed</p>
                 <p className="text-sm text-muted-foreground mt-2">{error}</p>
+                <div className="mt-4 p-4 bg-muted rounded-lg text-left text-sm text-foreground">
+                  <p className="font-medium mb-2">To fix this, run the API server:</p>
+                  <code className="block bg-background p-2 rounded font-mono text-xs">
+                    cd apps/api && npm run dev
+                  </code>
+                  <p className="mt-2 text-muted-foreground">
+                    The API server should be running on port 3001
+                  </p>
+                </div>
                 <Button
                   variant="outline"
                   className="mt-4"

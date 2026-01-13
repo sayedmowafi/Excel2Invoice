@@ -11,20 +11,20 @@
     "bulk",
     "automation"
   ],
-  "license": "CC-BY-NC-4.0",
-  "author": "Your Name",
+  "license": "SEE LICENSE FILE",
+  "author": "Sayed Mowafi <sayed@sayedmowafi.dev>",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
-    "dev:api": "npm run dev --workspace=apps/api",
-    "dev:web": "npm run dev --workspace=apps/web",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace=@excel-to-invoice/api",
+    "dev:web": "npm run dev --workspace=@excel-to-invoice/web",
     "build": "npm run build --workspaces --if-present",
-    "build:api": "npm run build --workspace=apps/api",
-    "build:web": "npm run build --workspace=apps/web",
-    "start": "npm run start --workspace=apps/api",
+    "build:api": "npm run build --workspace=@excel-to-invoice/api",
+    "build:web": "npm run build --workspace=@excel-to-invoice/web",
+    "start": "npm run start --workspace=@excel-to-invoice/api",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
+    "concurrently": "^8.2.2",
     "typescript": "^5.3.0"
   },
   "engines": {
