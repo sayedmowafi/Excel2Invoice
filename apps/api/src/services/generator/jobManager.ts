@@ -3,6 +3,10 @@ import type { Job, Invoice, GenerationConfig } from '@excel-to-invoice/shared';
 import { generatePdf } from './pdfGenerator.js';
 import path from 'path';
 import fs from 'fs/promises';
+import os from 'os';
+
+// Concurrency limit based on CPU cores (min 4, max 10)
+const CONCURRENCY_LIMIT = Math.min(10, Math.max(4, os.cpus().length));
 
 /**
  * In-memory job store
@@ -71,6 +75,31 @@ function isInvoicePaid(invoice: Invoice): boolean {
 }
 
 /**
+ * Process items in parallel with concurrency limit
+ */
+async function processInBatches<T, R>(
+  items: T[],
+  processor: (item: T) => Promise<R>,
+  concurrency: number
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let currentIndex = 0;
+
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (currentIndex < items.length) {
+      const index = currentIndex++;
+      const item = items[index];
+      if (item !== undefined) {
+        results[index] = await processor(item);
+      }
+    }
+  });
+
+  await Promise.all(workers);
+  return results;
+}
+
+/**
  * Start PDF generation job
  */
 export async function startGenerationJob(
@@ -99,11 +128,12 @@ export async function startGenerationJob(
   const failedInvoices: string[] = [];
 
   try {
-    // Generate PDFs
-    for (let i = 0; i < invoices.length; i++) {
-      const invoice = invoices[i];
-      if (!invoice) continue;
+    // Progress tracking
+    let completedCount = 0;
+    const progressLock = { current: '' };
 
+    // Process single invoice
+    const processInvoice = async (invoice: Invoice): Promise<{ path: string; folder: 'paid' | 'unpaid' } | null> => {
       try {
         // Generate PDF
         const pdfBuffer = await generatePdf(invoice, config);
@@ -118,11 +148,13 @@ export async function startGenerationJob(
         const filepath = path.join(targetDir, filename);
         await fs.writeFile(filepath, pdfBuffer);
 
-        generatedFiles.push({ path: filepath, folder });
+        // Update progress atomically
+        completedCount++;
+        progressLock.current = invoice.invoiceNumber;
 
-        // Update progress
+        // Update job store
         jobStore.update(jobId, {
-          progress: i + 1,
+          progress: completedCount,
           currentInvoice: invoice.invoiceNumber,
         });
 
@@ -130,14 +162,30 @@ export async function startGenerationJob(
         io.to(sessionId).emit('progress', {
           type: 'progress',
           jobId,
-          progress: i + 1,
+          progress: completedCount,
           total: invoices.length,
           currentInvoice: invoice.invoiceNumber,
-          percentage: Math.round(((i + 1) / invoices.length) * 100),
+          percentage: Math.round((completedCount / invoices.length) * 100),
         });
+
+        return { path: filepath, folder };
       } catch (error) {
         console.error(`Failed to generate PDF for ${invoice.invoiceNumber}:`, error);
+        completedCount++;
         failedInvoices.push(invoice.invoiceNumber);
+        return null;
+      }
+    };
+
+    // Process invoices in parallel batches
+    console.log(`Starting parallel PDF generation with concurrency: ${CONCURRENCY_LIMIT}`);
+
+    const results = await processInBatches(invoices, processInvoice, CONCURRENCY_LIMIT);
+
+    // Collect successful results
+    for (const result of results) {
+      if (result) {
+        generatedFiles.push(result);
       }
     }
 
