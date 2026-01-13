@@ -642,7 +642,8 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
       color: white;
       padding: 25px 30px;
       margin: -15mm -20mm 25px -20mm;
-      width: calc(100% + 40mm);
+      width: 210mm;
+      box-sizing: border-box;
       display: flex;
       justify-content: space-between;
       align-items: center;
