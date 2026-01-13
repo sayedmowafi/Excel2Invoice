@@ -141,9 +141,7 @@ class SessionStore {
       }
     }
 
-    if (cleaned > 0) {
-      console.log(`Cleaned up ${cleaned} expired sessions`);
-    }
+    // Sessions cleaned up silently
   }
 
   /**

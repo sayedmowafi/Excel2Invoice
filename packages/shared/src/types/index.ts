@@ -8,6 +8,7 @@ export type {
   InvoiceInput,
   InvoiceLineItem,
   InvoiceStatus,
+  PaymentStatus,
 } from './invoice.js';
 
 // Configuration types

@@ -627,7 +627,7 @@ function renderSimpleLogoTemplate(invoice: Invoice, config: GenerationConfig): s
  * Professional template - Modern with accent color
  */
 function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig): string {
-  const accentColor = '#2563eb'; // Professional blue
+  const accentColor = config.headerColor || '#3B82F6'; // Use config color or default blue
 
   return `
 <!DOCTYPE html>
@@ -642,6 +642,7 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
       color: white;
       padding: 25px 30px;
       margin: -15mm -20mm 25px -20mm;
+      width: calc(100% + 40mm);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -955,6 +956,20 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
  * Tax Invoice template - Compliance focused
  */
 function renderTaxInvoiceTemplate(invoice: Invoice, config: GenerationConfig): string {
+  // Calculate tax using config.taxRate if items don't have their own tax rates
+  const defaultTaxRate = config.taxRate || 0;
+
+  // Calculate totals with applied tax rate
+  const itemsWithTax = invoice.lineItems.map(item => {
+    const taxRate = item.taxRate ?? defaultTaxRate;
+    const taxAmount = item.taxAmount ?? (item.lineTotal * taxRate / 100);
+    return { ...item, taxRate, taxAmount };
+  });
+
+  const calculatedTotalTax = itemsWithTax.reduce((sum, item) => sum + (item.taxAmount || 0), 0);
+  const totalTax = invoice.totalTax > 0 ? invoice.totalTax : calculatedTotalTax;
+  const grandTotal = invoice.grandTotal > 0 ? invoice.grandTotal : invoice.subtotal + totalTax - invoice.totalDiscount;
+
   return `
 <!DOCTYPE html>
 <html>
@@ -1212,15 +1227,15 @@ function renderTaxInvoiceTemplate(invoice: Invoice, config: GenerationConfig): s
           </tr>
         </thead>
         <tbody>
-          ${invoice.lineItems.map((item, i) => `
+          ${itemsWithTax.map((item, i) => `
           <tr>
             <td>${i + 1}</td>
             <td><strong>${escapeHtml(item.description)}</strong>${item.sku ? `<br><small>SKU: ${item.sku}</small>` : ''}</td>
             <td class="text-center">${formatNumber(item.quantity, config.numberFormat)}</td>
             <td class="text-right">${formatMoney(item.unitPrice, config)}</td>
-            <td class="text-right">${item.taxRate ? `${item.taxRate}%` : '0%'}</td>
-            <td class="text-right">${formatMoney(item.taxAmount || 0, config)}</td>
-            <td class="text-right"><strong>${formatMoney(item.lineTotal + (item.taxAmount || 0), config)}</strong></td>
+            <td class="text-right">${item.taxRate}%</td>
+            <td class="text-right">${formatMoney(item.taxAmount, config)}</td>
+            <td class="text-right"><strong>${formatMoney(item.lineTotal + item.taxAmount, config)}</strong></td>
           </tr>
           `).join('')}
         </tbody>
@@ -1235,8 +1250,12 @@ function renderTaxInvoiceTemplate(invoice: Invoice, config: GenerationConfig): s
               <td class="text-right">${formatMoney(invoice.subtotal, config)}</td>
             </tr>
             <tr>
+              <td>Tax Rate:</td>
+              <td class="text-right">${defaultTaxRate}%</td>
+            </tr>
+            <tr>
               <td>Total Tax:</td>
-              <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
+              <td class="text-right">${formatMoney(totalTax, config)}</td>
             </tr>
           </table>
         </div>
@@ -1252,12 +1271,12 @@ function renderTaxInvoiceTemplate(invoice: Invoice, config: GenerationConfig): s
           </tr>
           ` : ''}
           <tr>
-            <td>Tax:</td>
-            <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
+            <td>Tax (${defaultTaxRate}%):</td>
+            <td class="text-right">${formatMoney(totalTax, config)}</td>
           </tr>
           <tr>
             <td>Grand Total:</td>
-            <td class="text-right">${formatMoney(invoice.grandTotal, config)}</td>
+            <td class="text-right">${formatMoney(grandTotal, config)}</td>
           </tr>
         </table>
       </div>

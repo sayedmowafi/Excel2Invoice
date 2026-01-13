@@ -38,6 +38,11 @@ export interface InvoiceLineItem {
 export type InvoiceStatus = 'valid' | 'warning' | 'error';
 
 /**
+ * Invoice payment status
+ */
+export type PaymentStatus = 'paid' | 'unpaid' | 'partial' | 'overdue' | 'pending';
+
+/**
  * Complete invoice structure
  */
 export interface Invoice {
@@ -79,6 +84,8 @@ export interface Invoice {
   // Processing metadata
   /** Validation status */
   status: InvoiceStatus;
+  /** Payment status (paid/unpaid/partial/etc.) */
+  paymentStatus?: PaymentStatus;
   /** List of validation errors/warnings */
   validationErrors?: string[];
   /** Source Excel row numbers */

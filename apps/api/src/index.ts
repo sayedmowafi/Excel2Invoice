@@ -51,8 +51,7 @@ setupSocketHandlers(io);
 const PORT = process.env.PORT ?? 3001;
 
 httpServer.listen(PORT, () => {
-  console.log(`API server running on http://localhost:${PORT}`);
-  console.log(`WebSocket server ready`);
+  // Server started silently
 });
 
 export { app, io };

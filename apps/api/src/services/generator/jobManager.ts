@@ -5,8 +5,8 @@ import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
 
-// Concurrency limit based on CPU cores (min 4, max 10)
-const CONCURRENCY_LIMIT = Math.min(10, Math.max(4, os.cpus().length));
+// Higher concurrency for faster generation (min 8, max 20)
+const CONCURRENCY_LIMIT = Math.min(20, Math.max(8, os.cpus().length * 2));
 
 /**
  * In-memory job store
@@ -48,20 +48,18 @@ class JobStore {
 export const jobStore = new JobStore();
 
 /**
- * Determine if an invoice is paid based on status or amounts
+ * Determine if an invoice is paid based on paymentStatus, amounts, or balanceDue
  */
 function isInvoicePaid(invoice: Invoice): boolean {
-  // Check explicit status field
-  const statusLower = (invoice as unknown as { status?: string }).status?.toLowerCase?.() ?? '';
-  if (statusLower === 'paid' || statusLower === 'complete' || statusLower === 'completed') {
-    return true;
-  }
-  if (statusLower === 'unpaid' || statusLower === 'pending' || statusLower === 'overdue' || statusLower === 'draft') {
-    return false;
+  // Check explicit paymentStatus field first
+  if (invoice.paymentStatus) {
+    const status = invoice.paymentStatus.toLowerCase();
+    if (status === 'paid') return true;
+    if (status === 'unpaid' || status === 'pending' || status === 'overdue' || status === 'partial') return false;
   }
 
   // Check if amountPaid equals or exceeds grandTotal
-  if (invoice.amountPaid && invoice.grandTotal) {
+  if (invoice.amountPaid !== undefined && invoice.grandTotal !== undefined && invoice.grandTotal > 0) {
     return invoice.amountPaid >= invoice.grandTotal;
   }
 

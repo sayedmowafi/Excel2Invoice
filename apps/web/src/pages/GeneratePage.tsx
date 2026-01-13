@@ -31,12 +31,10 @@ export default function GeneratePage() {
   const generateMutation = useMutation({
     mutationFn: () => api.generate(sessionId!),
     onSuccess: (data) => {
-      console.log('Generation started:', data.jobId);
       setProgress(prev => ({ ...prev, total: data.totalInvoices }));
       setStatus('generating');
     },
     onError: (err: Error) => {
-      console.error('Generation failed:', err);
       setError(err.message);
       setStatus('error');
     },
@@ -61,21 +59,18 @@ export default function GeneratePage() {
     }, 10000);
 
     newSocket.on('connect', () => {
-      console.log('Connected to WebSocket');
       clearTimeout(connectionTimeout);
       setIsConnected(true);
       newSocket.emit('join-session', sessionId);
     });
 
-    newSocket.on('connect_error', (err) => {
-      console.error('WebSocket connection error:', err);
+    newSocket.on('connect_error', () => {
       clearTimeout(connectionTimeout);
       setError(`Cannot connect to API server. Make sure the API server is running on ${API_URL}`);
       setStatus('error');
     });
 
     newSocket.on('progress', (data) => {
-      console.log('Progress update:', data);
       setProgress({
         current: data.progress,
         total: data.total,
@@ -85,8 +80,7 @@ export default function GeneratePage() {
       setStatus('generating');
     });
 
-    newSocket.on('completed', (data) => {
-      console.log('Generation completed:', data);
+    newSocket.on('completed', () => {
       setStatus('complete');
       setProgress(prev => ({ ...prev, percentage: 100 }));
       setTimeout(() => {
@@ -95,7 +89,6 @@ export default function GeneratePage() {
     });
 
     newSocket.on('error', (data) => {
-      console.error('Generation error:', data.error);
       setError(data.error);
       setStatus('error');
     });

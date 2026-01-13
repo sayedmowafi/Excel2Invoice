@@ -261,7 +261,7 @@ export default function ConfigPage() {
           <CardTitle>Invoice Template</CardTitle>
           <CardDescription>Choose a template style for your invoices</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <div className="grid grid-cols-4 gap-4">
             {[
               { id: 'simple', name: 'Simple', desc: 'Clean & minimal' },
@@ -288,6 +288,96 @@ export default function ConfigPage() {
               </button>
             ))}
           </div>
+
+          {/* Header Color - shown for Professional template */}
+          {config.template === 'professional' && (
+            <div className="border-t pt-4">
+              <label className="block text-sm font-medium mb-2">Header Color</label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="color"
+                  value={config.headerColor || '#3B82F6'}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      headerColor: e.target.value,
+                    }))
+                  }
+                  className="w-12 h-10 border rounded cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={config.headerColor || '#3B82F6'}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      headerColor: e.target.value,
+                    }))
+                  }
+                  className="w-28 border rounded px-3 py-2 bg-background text-foreground border-input font-mono text-sm"
+                  placeholder="#3B82F6"
+                />
+                <div className="flex gap-2">
+                  {['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#1a1a1a'].map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setConfig((prev) => ({ ...prev, headerColor: color }))}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        config.headerColor === color ? 'border-primary scale-110' : 'border-transparent'
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tax Rate - shown for Tax Invoice template */}
+          {config.template === 'tax-invoice' && (
+            <div className="border-t pt-4">
+              <label className="block text-sm font-medium mb-1">Default Tax Rate (%)</label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Applied to items without their own tax rate specified in the Excel file
+              </p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={config.taxRate || 0}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      taxRate: parseFloat(e.target.value) || 0,
+                    }))
+                  }
+                  className="w-24 border rounded px-3 py-2 bg-background text-foreground border-input"
+                  placeholder="0"
+                />
+                <span className="text-muted-foreground">%</span>
+                <div className="flex gap-2 ml-4">
+                  {[0, 5, 10, 15, 18, 20].map((rate) => (
+                    <button
+                      key={rate}
+                      type="button"
+                      onClick={() => setConfig((prev) => ({ ...prev, taxRate: rate }))}
+                      className={`px-3 py-1 rounded border text-sm transition-colors ${
+                        config.taxRate === rate
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'hover:border-gray-400'
+                      }`}
+                    >
+                      {rate}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

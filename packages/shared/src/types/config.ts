@@ -100,6 +100,14 @@ export interface GenerationConfig {
 
   // Footer
   footerText?: string;
+
+  // Template customization
+  /** Header color for professional template (hex code) */
+  headerColor?: string;
+
+  // Tax settings (for Tax Invoice template)
+  /** Default tax rate percentage (e.g., 18 for 18%) */
+  taxRate?: number;
 }
 
 /**
@@ -131,4 +139,6 @@ export const DEFAULT_CONFIG: GenerationConfig = {
     terms: true,
     bankDetails: false,
   },
+  headerColor: '#3B82F6',
+  taxRate: 0,
 };
