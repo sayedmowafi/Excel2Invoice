@@ -35,43 +35,68 @@ function formatMoney(value: number, config: GenerationConfig): string {
 }
 
 /**
- * Common styles for all templates
+ * Common styles for all templates - Full page A4
  */
 const commonStyles = `
+  @page {
+    size: A4;
+    margin: 0;
+  }
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
   }
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 12px;
-    line-height: 1.5;
-    color: #333;
+  html, body {
+    width: 210mm;
+    min-height: 297mm;
   }
-  .invoice {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #1a1a1a;
+    background: white;
+  }
+  .invoice-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 15mm 20mm;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .invoice-content {
+    flex: 1;
   }
   table {
     width: 100%;
     border-collapse: collapse;
   }
   th, td {
-    padding: 8px 12px;
+    padding: 10px 12px;
     text-align: left;
+    vertical-align: top;
   }
-  .text-right {
-    text-align: right;
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  .font-bold { font-weight: 600; }
+
+  /* Page break handling for long invoices */
+  .items-table {
+    page-break-inside: auto;
   }
-  .text-center {
-    text-align: center;
+  .items-table tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  .no-break {
+    page-break-inside: avoid;
   }
 `;
 
 /**
- * Simple template
+ * Simple template - Clean and minimal
  */
 function renderSimpleTemplate(invoice: Invoice, config: GenerationConfig): string {
   return `
@@ -81,177 +106,303 @@ function renderSimpleTemplate(invoice: Invoice, config: GenerationConfig): strin
   <meta charset="UTF-8">
   <style>
     ${commonStyles}
+
     .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e5e5e5;
+    }
+    .company-info {
+      max-width: 60%;
     }
     .company-name {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 5px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    .company-details {
+      font-size: 10px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .invoice-title-section {
+      text-align: right;
     }
     .invoice-title {
-      font-size: 20px;
-      color: #666;
-      margin-bottom: 20px;
+      font-size: 32px;
+      font-weight: 700;
+      color: #333;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
     }
-    .details {
+    .invoice-number {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .billing-section {
       display: flex;
       justify-content: space-between;
       margin-bottom: 30px;
+      gap: 40px;
     }
-    .details-section {
-      width: 48%;
+    .billing-box {
+      flex: 1;
     }
-    .details-section h3 {
-      font-size: 12px;
-      color: #666;
+    .billing-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #888;
       text-transform: uppercase;
-      margin-bottom: 5px;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
     }
+    .billing-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .billing-details {
+      font-size: 11px;
+      color: #555;
+      line-height: 1.6;
+    }
+    .invoice-details {
+      text-align: right;
+    }
+    .invoice-details table {
+      margin-left: auto;
+      width: auto;
+    }
+    .invoice-details td {
+      padding: 4px 0;
+      font-size: 11px;
+    }
+    .invoice-details td:first-child {
+      color: #666;
+      padding-right: 20px;
+    }
+    .invoice-details td:last-child {
+      font-weight: 500;
+    }
+
     .items-table {
       margin-bottom: 30px;
     }
-    .items-table th {
-      background: #f5f5f5;
-      border-bottom: 2px solid #ddd;
+    .items-table thead th {
+      background: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
       font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #555;
+      padding: 12px;
     }
-    .items-table td {
+    .items-table tbody td {
       border-bottom: 1px solid #eee;
+      padding: 12px;
+      font-size: 11px;
     }
-    .totals {
-      width: 300px;
-      margin-left: auto;
+    .items-table tbody tr:hover {
+      background: #fafafa;
     }
-    .totals tr:last-child {
-      font-weight: bold;
-      font-size: 14px;
+
+    .totals-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 30px;
     }
-    .totals tr:last-child td {
-      padding-top: 10px;
-      border-top: 2px solid #333;
+    .totals-table {
+      width: 280px;
     }
-    .footer {
-      margin-top: 40px;
+    .totals-table td {
+      padding: 8px 0;
+      font-size: 11px;
+    }
+    .totals-table tr:last-child td {
+      padding-top: 12px;
+      border-top: 2px solid #1a1a1a;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .footer-section {
+      margin-top: auto;
       padding-top: 20px;
       border-top: 1px solid #eee;
-      font-size: 11px;
+    }
+    .notes-section {
+      margin-bottom: 15px;
+    }
+    .notes-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .notes-content {
+      font-size: 10px;
       color: #666;
+      line-height: 1.5;
+    }
+    .legal-footer {
+      text-align: center;
+      font-size: 9px;
+      color: #999;
+      padding-top: 15px;
+      border-top: 1px solid #f0f0f0;
     }
   </style>
 </head>
 <body>
-  <div class="invoice">
-    <div class="header">
-      <div class="company-name">${escapeHtml(config.company.name)}</div>
-      ${config.company.address ? `<div>${escapeHtml(config.company.address)}</div>` : ''}
-      ${config.company.phone ? `<div>Phone: ${escapeHtml(config.company.phone)}</div>` : ''}
-      ${config.company.email ? `<div>Email: ${escapeHtml(config.company.email)}</div>` : ''}
-    </div>
-
-    <div class="invoice-title">INVOICE</div>
-
-    <div class="details">
-      <div class="details-section">
-        <h3>Bill To</h3>
-        <div><strong>${escapeHtml(invoice.customer.name)}</strong></div>
-        ${config.showFields.customerAddress && invoice.customer.address?.line1 ? `<div>${escapeHtml(invoice.customer.address.line1)}</div>` : ''}
-        ${config.showFields.customerEmail && invoice.customer.email ? `<div>${escapeHtml(invoice.customer.email)}</div>` : ''}
-        ${config.showFields.customerPhone && invoice.customer.phone ? `<div>${escapeHtml(invoice.customer.phone)}</div>` : ''}
+  <div class="invoice-page">
+    <div class="invoice-content">
+      <div class="header">
+        <div class="company-info">
+          <div class="company-name">${escapeHtml(config.company.name)}</div>
+          <div class="company-details">
+            ${config.company.address ? `${escapeHtml(config.company.address)}<br>` : ''}
+            ${config.company.phone ? `Tel: ${escapeHtml(config.company.phone)}` : ''}
+            ${config.company.phone && config.company.email ? ' | ' : ''}
+            ${config.company.email ? `${escapeHtml(config.company.email)}` : ''}<br>
+            ${config.company.website ? `${escapeHtml(config.company.website)}` : ''}
+            ${config.showFields.taxId && config.company.taxId ? `<br>Tax ID: ${escapeHtml(config.company.taxId)}` : ''}
+          </div>
+        </div>
+        <div class="invoice-title-section">
+          <div class="invoice-title">INVOICE</div>
+          <div class="invoice-number">#${escapeHtml(invoice.invoiceNumber)}</div>
+        </div>
       </div>
-      <div class="details-section">
-        <table>
+
+      <div class="billing-section">
+        <div class="billing-box">
+          <div class="billing-label">Bill To</div>
+          <div class="billing-name">${escapeHtml(invoice.customer.name)}</div>
+          <div class="billing-details">
+            ${invoice.customer.address?.line1 ? `${escapeHtml(invoice.customer.address.line1)}<br>` : ''}
+            ${invoice.customer.address?.city ? `${escapeHtml(invoice.customer.address.city)}` : ''}
+            ${invoice.customer.address?.state ? `, ${escapeHtml(invoice.customer.address.state)}` : ''}
+            ${invoice.customer.address?.postalCode ? ` ${escapeHtml(invoice.customer.address.postalCode)}` : ''}
+            ${invoice.customer.address?.country ? `<br>${escapeHtml(invoice.customer.address.country)}` : ''}
+            ${invoice.customer.email ? `<br>${escapeHtml(invoice.customer.email)}` : ''}
+            ${invoice.customer.phone ? `<br>${escapeHtml(invoice.customer.phone)}` : ''}
+            ${invoice.customer.taxId ? `<br>Tax ID: ${escapeHtml(invoice.customer.taxId)}` : ''}
+          </div>
+        </div>
+        <div class="billing-box invoice-details">
+          <table>
+            <tr>
+              <td>Invoice Date:</td>
+              <td>${formatDate(invoice.issueDate, config.dateFormat)}</td>
+            </tr>
+            ${invoice.dueDate ? `
+            <tr>
+              <td>Due Date:</td>
+              <td>${formatDate(invoice.dueDate, config.dateFormat)}</td>
+            </tr>
+            ` : ''}
+            ${invoice.poNumber ? `
+            <tr>
+              <td>PO Number:</td>
+              <td>${escapeHtml(invoice.poNumber)}</td>
+            </tr>
+            ` : ''}
+            ${invoice.currency !== 'USD' ? `
+            <tr>
+              <td>Currency:</td>
+              <td>${invoice.currency}</td>
+            </tr>
+            ` : ''}
+          </table>
+        </div>
+      </div>
+
+      <table class="items-table">
+        <thead>
           <tr>
-            <td><strong>Invoice #:</strong></td>
-            <td class="text-right">${escapeHtml(invoice.invoiceNumber)}</td>
+            <th style="width: 50%">Description</th>
+            <th class="text-center" style="width: 12%">Qty</th>
+            <th class="text-right" style="width: 18%">Unit Price</th>
+            <th class="text-right" style="width: 20%">Amount</th>
           </tr>
+        </thead>
+        <tbody>
+          ${invoice.lineItems.map(item => `
           <tr>
-            <td><strong>Date:</strong></td>
-            <td class="text-right">${formatDate(invoice.issueDate, config.dateFormat)}</td>
+            <td>${escapeHtml(item.description)}</td>
+            <td class="text-center">${formatNumber(item.quantity, config.numberFormat)}</td>
+            <td class="text-right">${formatMoney(item.unitPrice, config)}</td>
+            <td class="text-right">${formatMoney(item.lineTotal, config)}</td>
           </tr>
-          ${config.showFields.dueDate && invoice.dueDate ? `
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div class="totals-section no-break">
+        <table class="totals-table">
           <tr>
-            <td><strong>Due Date:</strong></td>
-            <td class="text-right">${formatDate(invoice.dueDate, config.dateFormat)}</td>
+            <td>Subtotal</td>
+            <td class="text-right">${formatMoney(invoice.subtotal, config)}</td>
+          </tr>
+          ${invoice.totalDiscount > 0 ? `
+          <tr>
+            <td>Discount</td>
+            <td class="text-right">-${formatMoney(invoice.totalDiscount, config)}</td>
           </tr>
           ` : ''}
-          ${config.showFields.poNumber && invoice.poNumber ? `
+          ${invoice.totalTax > 0 ? `
           <tr>
-            <td><strong>PO #:</strong></td>
-            <td class="text-right">${escapeHtml(invoice.poNumber)}</td>
+            <td>Tax</td>
+            <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
           </tr>
           ` : ''}
+          <tr>
+            <td>Total Due</td>
+            <td class="text-right">${formatMoney(invoice.grandTotal, config)}</td>
+          </tr>
         </table>
       </div>
     </div>
 
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th>Description</th>
-          <th class="text-right">Qty</th>
-          <th class="text-right">Unit Price</th>
-          ${config.showFields.taxBreakdown ? '<th class="text-right">Tax</th>' : ''}
-          <th class="text-right">Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${invoice.lineItems.map(item => `
-        <tr>
-          <td>${escapeHtml(item.description)}</td>
-          <td class="text-right">${formatNumber(item.quantity, config.numberFormat)}</td>
-          <td class="text-right">${formatMoney(item.unitPrice, config)}</td>
-          ${config.showFields.taxBreakdown ? `<td class="text-right">${item.taxRate ? item.taxRate + '%' : '-'}</td>` : ''}
-          <td class="text-right">${formatMoney(item.lineTotal, config)}</td>
-        </tr>
-        `).join('')}
-      </tbody>
-    </table>
-
-    <table class="totals">
-      <tr>
-        <td>Subtotal:</td>
-        <td class="text-right">${formatMoney(invoice.subtotal, config)}</td>
-      </tr>
-      ${invoice.totalDiscount > 0 ? `
-      <tr>
-        <td>Discount:</td>
-        <td class="text-right">-${formatMoney(invoice.totalDiscount, config)}</td>
-      </tr>
+    <div class="footer-section no-break">
+      ${invoice.notes ? `
+      <div class="notes-section">
+        <div class="notes-label">Notes</div>
+        <div class="notes-content">${escapeHtml(invoice.notes)}</div>
+      </div>
       ` : ''}
-      ${config.showFields.taxBreakdown && invoice.totalTax > 0 ? `
-      <tr>
-        <td>Tax:</td>
-        <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
-      </tr>
+
+      ${config.bankDetails ? `
+      <div class="notes-section">
+        <div class="notes-label">Payment Information</div>
+        <div class="notes-content">
+          Bank: ${escapeHtml(config.bankDetails.bankName)} |
+          Account: ${escapeHtml(config.bankDetails.accountNumber)}
+          ${config.bankDetails.swift ? ` | SWIFT: ${escapeHtml(config.bankDetails.swift)}` : ''}
+          ${config.bankDetails.iban ? ` | IBAN: ${escapeHtml(config.bankDetails.iban)}` : ''}
+        </div>
+      </div>
       ` : ''}
-      <tr>
-        <td>Total:</td>
-        <td class="text-right">${formatMoney(invoice.grandTotal, config)}</td>
-      </tr>
-    </table>
 
-    ${config.showFields.notes && invoice.notes ? `
-    <div class="footer">
-      <strong>Notes:</strong><br>
-      ${escapeHtml(invoice.notes)}
-    </div>
-    ` : ''}
+      ${config.footerText ? `
+      <div class="notes-section">
+        <div class="notes-content">${escapeHtml(config.footerText)}</div>
+      </div>
+      ` : ''}
 
-    ${config.showFields.bankDetails && config.bankDetails ? `
-    <div class="footer">
-      <strong>Payment Details:</strong><br>
-      Bank: ${escapeHtml(config.bankDetails.bankName)}<br>
-      Account: ${escapeHtml(config.bankDetails.accountNumber)}<br>
-      ${config.bankDetails.swift ? `SWIFT: ${escapeHtml(config.bankDetails.swift)}<br>` : ''}
+      <div class="legal-footer">
+        This is a computer-generated invoice.
+        ${config.company.name} ${config.company.taxId ? `| Tax ID: ${config.company.taxId}` : ''}
+      </div>
     </div>
-    ` : ''}
-
-    ${config.footerText ? `
-    <div class="footer">
-      ${escapeHtml(config.footerText)}
-    </div>
-    ` : ''}
   </div>
 </body>
 </html>
@@ -262,25 +413,6 @@ function renderSimpleTemplate(invoice: Invoice, config: GenerationConfig): strin
  * Simple + Logo template
  */
 function renderSimpleLogoTemplate(invoice: Invoice, config: GenerationConfig): string {
-  const simple = renderSimpleTemplate(invoice, config);
-
-  if (!config.company.logo) {
-    return simple;
-  }
-
-  // Inject logo into header
-  const logoHtml = `<img src="${config.company.logo}" style="max-height: 60px; max-width: 200px; margin-bottom: 10px;" />`;
-
-  return simple.replace(
-    '<div class="company-name">',
-    `${logoHtml}<div class="company-name">`
-  );
-}
-
-/**
- * Professional template
- */
-function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -288,203 +420,203 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
   <meta charset="UTF-8">
   <style>
     ${commonStyles}
+
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px;
-      margin: -20px -20px 30px -20px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e5e5e5;
     }
-    .header-left {
+    .company-info {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 15px;
+      max-width: 60%;
     }
-    .logo {
-      max-height: 50px;
-      max-width: 150px;
+    .company-logo {
+      max-height: 60px;
+      max-width: 120px;
+      object-fit: contain;
+    }
+    .company-text {
+      flex: 1;
     }
     .company-name {
       font-size: 20px;
-      font-weight: bold;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 6px;
     }
-    .invoice-badge {
-      background: rgba(255,255,255,0.2);
-      padding: 10px 20px;
-      border-radius: 5px;
+    .company-details {
+      font-size: 10px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .invoice-title-section {
+      text-align: right;
+    }
+    .invoice-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: #333;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
     }
     .invoice-number {
-      font-size: 18px;
-      font-weight: bold;
+      font-size: 14px;
+      color: #666;
     }
-    .details {
+
+    .billing-section {
       display: flex;
       justify-content: space-between;
       margin-bottom: 30px;
+      gap: 40px;
     }
-    .details-section {
-      width: 48%;
-    }
-    .details-section h3 {
-      font-size: 11px;
+    .billing-box { flex: 1; }
+    .billing-label {
+      font-size: 10px;
+      font-weight: 600;
       color: #888;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-    .items-table {
-      margin-bottom: 30px;
-    }
-    .items-table th {
-      background: #f8f9fa;
-      color: #667eea;
+    .billing-name {
+      font-size: 14px;
       font-weight: 600;
-      text-transform: uppercase;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .billing-details {
       font-size: 11px;
-      letter-spacing: 0.5px;
-      padding: 12px;
+      color: #555;
+      line-height: 1.6;
     }
-    .items-table td {
-      padding: 12px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .items-table tr:nth-child(even) td {
-      background: #fafafa;
-    }
-    .totals-container {
-      display: flex;
-      justify-content: flex-end;
-    }
-    .totals {
-      width: 300px;
+    .invoice-details { text-align: right; }
+    .invoice-details table { margin-left: auto; width: auto; }
+    .invoice-details td { padding: 4px 0; font-size: 11px; }
+    .invoice-details td:first-child { color: #666; padding-right: 20px; }
+    .invoice-details td:last-child { font-weight: 500; }
+
+    .items-table { margin-bottom: 30px; }
+    .items-table thead th {
       background: #f8f9fa;
-      padding: 20px;
-      border-radius: 8px;
+      border-bottom: 2px solid #dee2e6;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #555;
+      padding: 12px;
     }
-    .totals tr td {
-      padding: 8px 0;
-    }
-    .totals tr:last-child {
-      font-weight: bold;
-      font-size: 16px;
-      color: #667eea;
-    }
-    .totals tr:last-child td {
-      padding-top: 15px;
-      border-top: 2px solid #667eea;
-    }
-    .footer {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
+    .items-table tbody td {
+      border-bottom: 1px solid #eee;
+      padding: 12px;
       font-size: 11px;
-      color: #666;
     }
+
+    .totals-section { display: flex; justify-content: flex-end; margin-bottom: 30px; }
+    .totals-table { width: 280px; }
+    .totals-table td { padding: 8px 0; font-size: 11px; }
+    .totals-table tr:last-child td {
+      padding-top: 12px;
+      border-top: 2px solid #1a1a1a;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .footer-section { margin-top: auto; padding-top: 20px; border-top: 1px solid #eee; }
+    .notes-section { margin-bottom: 15px; }
+    .notes-label { font-size: 10px; font-weight: 600; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+    .notes-content { font-size: 10px; color: #666; line-height: 1.5; }
+    .legal-footer { text-align: center; font-size: 9px; color: #999; padding-top: 15px; border-top: 1px solid #f0f0f0; }
   </style>
 </head>
 <body>
-  <div class="invoice">
-    <div class="header">
-      <div class="header-left">
-        ${config.company.logo ? `<img class="logo" src="${config.company.logo}" />` : ''}
-        <div>
-          <div class="company-name">${escapeHtml(config.company.name)}</div>
-          ${config.company.website ? `<div style="opacity: 0.8; font-size: 11px;">${escapeHtml(config.company.website)}</div>` : ''}
+  <div class="invoice-page">
+    <div class="invoice-content">
+      <div class="header">
+        <div class="company-info">
+          ${config.company.logo ? `<img class="company-logo" src="${config.company.logo}" />` : ''}
+          <div class="company-text">
+            <div class="company-name">${escapeHtml(config.company.name)}</div>
+            <div class="company-details">
+              ${config.company.address ? `${escapeHtml(config.company.address)}<br>` : ''}
+              ${config.company.phone ? `Tel: ${escapeHtml(config.company.phone)}` : ''}
+              ${config.company.phone && config.company.email ? ' | ' : ''}
+              ${config.company.email ? `${escapeHtml(config.company.email)}` : ''}<br>
+              ${config.company.website ? `${escapeHtml(config.company.website)}` : ''}
+              ${config.showFields.taxId && config.company.taxId ? `<br>Tax ID: ${escapeHtml(config.company.taxId)}` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="invoice-title-section">
+          <div class="invoice-title">INVOICE</div>
+          <div class="invoice-number">#${escapeHtml(invoice.invoiceNumber)}</div>
         </div>
       </div>
-      <div class="invoice-badge">
-        <div style="font-size: 11px; opacity: 0.8;">INVOICE</div>
-        <div class="invoice-number">#${escapeHtml(invoice.invoiceNumber)}</div>
-      </div>
-    </div>
 
-    <div class="details">
-      <div class="details-section">
-        <h3>Billed To</h3>
-        <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px;">${escapeHtml(invoice.customer.name)}</div>
-        ${config.showFields.customerAddress && invoice.customer.address?.line1 ? `<div>${escapeHtml(invoice.customer.address.line1)}</div>` : ''}
-        ${config.showFields.customerEmail && invoice.customer.email ? `<div>${escapeHtml(invoice.customer.email)}</div>` : ''}
-        ${config.showFields.customerPhone && invoice.customer.phone ? `<div>${escapeHtml(invoice.customer.phone)}</div>` : ''}
+      <div class="billing-section">
+        <div class="billing-box">
+          <div class="billing-label">Bill To</div>
+          <div class="billing-name">${escapeHtml(invoice.customer.name)}</div>
+          <div class="billing-details">
+            ${invoice.customer.address?.line1 ? `${escapeHtml(invoice.customer.address.line1)}<br>` : ''}
+            ${invoice.customer.address?.city ? `${escapeHtml(invoice.customer.address.city)}` : ''}
+            ${invoice.customer.address?.state ? `, ${escapeHtml(invoice.customer.address.state)}` : ''}
+            ${invoice.customer.address?.postalCode ? ` ${escapeHtml(invoice.customer.address.postalCode)}` : ''}
+            ${invoice.customer.email ? `<br>${escapeHtml(invoice.customer.email)}` : ''}
+          </div>
+        </div>
+        <div class="billing-box invoice-details">
+          <table>
+            <tr><td>Invoice Date:</td><td>${formatDate(invoice.issueDate, config.dateFormat)}</td></tr>
+            ${invoice.dueDate ? `<tr><td>Due Date:</td><td>${formatDate(invoice.dueDate, config.dateFormat)}</td></tr>` : ''}
+            ${invoice.poNumber ? `<tr><td>PO Number:</td><td>${escapeHtml(invoice.poNumber)}</td></tr>` : ''}
+          </table>
+        </div>
       </div>
-      <div class="details-section" style="text-align: right;">
-        <h3>Invoice Details</h3>
-        <div><strong>Date:</strong> ${formatDate(invoice.issueDate, config.dateFormat)}</div>
-        ${config.showFields.dueDate && invoice.dueDate ? `<div><strong>Due:</strong> ${formatDate(invoice.dueDate, config.dateFormat)}</div>` : ''}
-        ${config.showFields.poNumber && invoice.poNumber ? `<div><strong>PO:</strong> ${escapeHtml(invoice.poNumber)}</div>` : ''}
-      </div>
-    </div>
 
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th>Description</th>
-          <th class="text-center">Qty</th>
-          <th class="text-right">Rate</th>
-          ${config.showFields.taxBreakdown ? '<th class="text-right">Tax</th>' : ''}
-          <th class="text-right">Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${invoice.lineItems.map(item => `
-        <tr>
-          <td>${escapeHtml(item.description)}</td>
-          <td class="text-center">${formatNumber(item.quantity, config.numberFormat)}</td>
-          <td class="text-right">${formatMoney(item.unitPrice, config)}</td>
-          ${config.showFields.taxBreakdown ? `<td class="text-right">${item.taxRate ? item.taxRate + '%' : '-'}</td>` : ''}
-          <td class="text-right">${formatMoney(item.lineTotal, config)}</td>
-        </tr>
-        `).join('')}
-      </tbody>
-    </table>
-
-    <div class="totals-container">
-      <table class="totals">
-        <tr>
-          <td>Subtotal</td>
-          <td class="text-right">${formatMoney(invoice.subtotal, config)}</td>
-        </tr>
-        ${invoice.totalDiscount > 0 ? `
-        <tr>
-          <td>Discount</td>
-          <td class="text-right">-${formatMoney(invoice.totalDiscount, config)}</td>
-        </tr>
-        ` : ''}
-        ${config.showFields.taxBreakdown && invoice.totalTax > 0 ? `
-        <tr>
-          <td>Tax</td>
-          <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
-        </tr>
-        ` : ''}
-        <tr>
-          <td>Total Due</td>
-          <td class="text-right">${formatMoney(invoice.grandTotal, config)}</td>
-        </tr>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 50%">Description</th>
+            <th class="text-center" style="width: 12%">Qty</th>
+            <th class="text-right" style="width: 18%">Unit Price</th>
+            <th class="text-right" style="width: 20%">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${invoice.lineItems.map(item => `
+          <tr>
+            <td>${escapeHtml(item.description)}</td>
+            <td class="text-center">${formatNumber(item.quantity, config.numberFormat)}</td>
+            <td class="text-right">${formatMoney(item.unitPrice, config)}</td>
+            <td class="text-right">${formatMoney(item.lineTotal, config)}</td>
+          </tr>
+          `).join('')}
+        </tbody>
       </table>
+
+      <div class="totals-section no-break">
+        <table class="totals-table">
+          <tr><td>Subtotal</td><td class="text-right">${formatMoney(invoice.subtotal, config)}</td></tr>
+          ${invoice.totalDiscount > 0 ? `<tr><td>Discount</td><td class="text-right">-${formatMoney(invoice.totalDiscount, config)}</td></tr>` : ''}
+          ${invoice.totalTax > 0 ? `<tr><td>Tax</td><td class="text-right">${formatMoney(invoice.totalTax, config)}</td></tr>` : ''}
+          <tr><td>Total Due</td><td class="text-right">${formatMoney(invoice.grandTotal, config)}</td></tr>
+        </table>
+      </div>
     </div>
 
-    ${config.showFields.notes && invoice.notes ? `
-    <div class="footer">
-      <strong>Notes</strong><br>
-      ${escapeHtml(invoice.notes)}
+    <div class="footer-section no-break">
+      ${invoice.notes ? `<div class="notes-section"><div class="notes-label">Notes</div><div class="notes-content">${escapeHtml(invoice.notes)}</div></div>` : ''}
+      ${config.bankDetails ? `<div class="notes-section"><div class="notes-label">Payment Information</div><div class="notes-content">Bank: ${escapeHtml(config.bankDetails.bankName)} | Account: ${escapeHtml(config.bankDetails.accountNumber)}${config.bankDetails.swift ? ` | SWIFT: ${escapeHtml(config.bankDetails.swift)}` : ''}</div></div>` : ''}
+      ${config.footerText ? `<div class="notes-section"><div class="notes-content">${escapeHtml(config.footerText)}</div></div>` : ''}
+      <div class="legal-footer">This is a computer-generated invoice. ${config.company.name}</div>
     </div>
-    ` : ''}
-
-    ${config.showFields.bankDetails && config.bankDetails ? `
-    <div class="footer">
-      <strong>Payment Information</strong><br>
-      Bank: ${escapeHtml(config.bankDetails.bankName)} |
-      Account: ${escapeHtml(config.bankDetails.accountNumber)}
-      ${config.bankDetails.swift ? ` | SWIFT: ${escapeHtml(config.bankDetails.swift)}` : ''}
-    </div>
-    ` : ''}
-
-    ${config.footerText ? `
-    <div class="footer" style="text-align: center;">
-      ${escapeHtml(config.footerText)}
-    </div>
-    ` : ''}
   </div>
 </body>
 </html>
@@ -492,7 +624,335 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
 }
 
 /**
- * Tax Invoice template
+ * Professional template - Modern with accent color
+ */
+function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig): string {
+  const accentColor = '#2563eb'; // Professional blue
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    ${commonStyles}
+
+    .header {
+      background: ${accentColor};
+      color: white;
+      padding: 25px 30px;
+      margin: -15mm -20mm 25px -20mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .company-logo {
+      max-height: 50px;
+      max-width: 100px;
+      object-fit: contain;
+      background: white;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    .company-name {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .company-tagline {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+    .header-right {
+      text-align: right;
+    }
+    .invoice-label {
+      font-size: 11px;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .invoice-number {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      gap: 30px;
+    }
+    .info-box {
+      flex: 1;
+    }
+    .info-box.right {
+      text-align: right;
+    }
+    .info-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: ${accentColor};
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid ${accentColor};
+      display: inline-block;
+    }
+    .info-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 5px;
+    }
+    .info-details {
+      font-size: 11px;
+      color: #555;
+      line-height: 1.7;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 8px 20px;
+      font-size: 11px;
+    }
+    .info-grid dt {
+      color: #888;
+    }
+    .info-grid dd {
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .items-table {
+      margin-bottom: 25px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .items-table thead th {
+      background: ${accentColor};
+      color: white;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 14px 12px;
+    }
+    .items-table tbody td {
+      padding: 14px 12px;
+      font-size: 11px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .items-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    .items-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .totals-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 30px;
+    }
+    .totals-box {
+      width: 300px;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid #e5e7eb;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 12px;
+    }
+    .totals-row.total {
+      border-top: 2px solid ${accentColor};
+      margin-top: 10px;
+      padding-top: 15px;
+      font-size: 18px;
+      font-weight: 700;
+      color: ${accentColor};
+    }
+
+    .footer-section {
+      margin-top: auto;
+      padding-top: 25px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .footer-box h4 {
+      font-size: 10px;
+      font-weight: 600;
+      color: ${accentColor};
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .footer-box p {
+      font-size: 10px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .legal-footer {
+      text-align: center;
+      font-size: 9px;
+      color: #999;
+      padding-top: 15px;
+      border-top: 1px solid #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-page">
+    <div class="invoice-content">
+      <div class="header">
+        <div class="header-left">
+          ${config.company.logo ? `<img class="company-logo" src="${config.company.logo}" />` : ''}
+          <div>
+            <div class="company-name">${escapeHtml(config.company.name)}</div>
+            ${config.company.website ? `<div class="company-tagline">${escapeHtml(config.company.website)}</div>` : ''}
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="invoice-label">Invoice</div>
+          <div class="invoice-number">#${escapeHtml(invoice.invoiceNumber)}</div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-box">
+          <div class="info-label">From</div>
+          <div class="info-name">${escapeHtml(config.company.name)}</div>
+          <div class="info-details">
+            ${config.company.address ? `${escapeHtml(config.company.address)}<br>` : ''}
+            ${config.company.phone ? `Tel: ${escapeHtml(config.company.phone)}<br>` : ''}
+            ${config.company.email ? `${escapeHtml(config.company.email)}<br>` : ''}
+            ${config.company.taxId ? `Tax ID: ${escapeHtml(config.company.taxId)}` : ''}
+          </div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Bill To</div>
+          <div class="info-name">${escapeHtml(invoice.customer.name)}</div>
+          <div class="info-details">
+            ${invoice.customer.address?.line1 ? `${escapeHtml(invoice.customer.address.line1)}<br>` : ''}
+            ${invoice.customer.address?.city ? `${escapeHtml(invoice.customer.address.city)}` : ''}
+            ${invoice.customer.address?.state ? `, ${escapeHtml(invoice.customer.address.state)}` : ''}
+            ${invoice.customer.address?.postalCode ? ` ${escapeHtml(invoice.customer.address.postalCode)}` : ''}
+            ${invoice.customer.email ? `<br>${escapeHtml(invoice.customer.email)}` : ''}
+          </div>
+        </div>
+        <div class="info-box right">
+          <div class="info-label">Details</div>
+          <dl class="info-grid">
+            <dt>Date:</dt>
+            <dd>${formatDate(invoice.issueDate, config.dateFormat)}</dd>
+            ${invoice.dueDate ? `<dt>Due:</dt><dd>${formatDate(invoice.dueDate, config.dateFormat)}</dd>` : ''}
+            ${invoice.poNumber ? `<dt>PO #:</dt><dd>${escapeHtml(invoice.poNumber)}</dd>` : ''}
+            <dt>Currency:</dt>
+            <dd>${invoice.currency}</dd>
+          </dl>
+        </div>
+      </div>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 45%">Description</th>
+            <th class="text-center" style="width: 12%">Qty</th>
+            <th class="text-right" style="width: 18%">Rate</th>
+            <th class="text-right" style="width: 25%">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${invoice.lineItems.map(item => `
+          <tr>
+            <td><strong>${escapeHtml(item.description)}</strong></td>
+            <td class="text-center">${formatNumber(item.quantity, config.numberFormat)}</td>
+            <td class="text-right">${formatMoney(item.unitPrice, config)}</td>
+            <td class="text-right"><strong>${formatMoney(item.lineTotal, config)}</strong></td>
+          </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div class="totals-section no-break">
+        <div class="totals-box">
+          <div class="totals-row">
+            <span>Subtotal</span>
+            <span>${formatMoney(invoice.subtotal, config)}</span>
+          </div>
+          ${invoice.totalDiscount > 0 ? `
+          <div class="totals-row">
+            <span>Discount</span>
+            <span>-${formatMoney(invoice.totalDiscount, config)}</span>
+          </div>
+          ` : ''}
+          ${invoice.totalTax > 0 ? `
+          <div class="totals-row">
+            <span>Tax</span>
+            <span>${formatMoney(invoice.totalTax, config)}</span>
+          </div>
+          ` : ''}
+          <div class="totals-row total">
+            <span>Total Due</span>
+            <span>${formatMoney(invoice.grandTotal, config)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-section no-break">
+      <div class="footer-grid">
+        ${invoice.notes || config.footerText ? `
+        <div class="footer-box">
+          <h4>Notes & Terms</h4>
+          <p>
+            ${invoice.notes ? escapeHtml(invoice.notes) : ''}
+            ${invoice.notes && config.footerText ? '<br><br>' : ''}
+            ${config.footerText ? escapeHtml(config.footerText) : ''}
+          </p>
+        </div>
+        ` : '<div></div>'}
+        ${config.bankDetails ? `
+        <div class="footer-box">
+          <h4>Payment Information</h4>
+          <p>
+            <strong>Bank:</strong> ${escapeHtml(config.bankDetails.bankName)}<br>
+            <strong>Account:</strong> ${escapeHtml(config.bankDetails.accountNumber)}<br>
+            ${config.bankDetails.swift ? `<strong>SWIFT:</strong> ${escapeHtml(config.bankDetails.swift)}<br>` : ''}
+            ${config.bankDetails.iban ? `<strong>IBAN:</strong> ${escapeHtml(config.bankDetails.iban)}` : ''}
+          </p>
+        </div>
+        ` : '<div></div>'}
+      </div>
+      <div class="legal-footer">
+        This is a computer-generated invoice. | ${escapeHtml(config.company.name)}
+        ${config.company.taxId ? ` | Tax ID: ${escapeHtml(config.company.taxId)}` : ''}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+}
+
+/**
+ * Tax Invoice template - Compliance focused
  */
 function renderTaxInvoiceTemplate(invoice: Invoice, config: GenerationConfig): string {
   return `
@@ -502,233 +962,325 @@ function renderTaxInvoiceTemplate(invoice: Invoice, config: GenerationConfig): s
   <meta charset="UTF-8">
   <style>
     ${commonStyles}
-    .tax-header {
+
+    .tax-banner {
+      background: #1a1a1a;
+      color: white;
+      text-align: center;
+      padding: 12px;
+      margin: -15mm -20mm 20px -20mm;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 4px;
+    }
+
+    .company-header {
       text-align: center;
       margin-bottom: 20px;
-      padding-bottom: 20px;
+      padding-bottom: 15px;
       border-bottom: 2px solid #333;
     }
-    .tax-title {
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 3px;
-    }
-    .company-section {
-      text-align: center;
-      margin-bottom: 20px;
+    .company-logo-center {
+      max-height: 50px;
+      margin-bottom: 10px;
     }
     .company-name {
       font-size: 20px;
-      font-weight: bold;
-    }
-    .tax-id {
-      font-size: 12px;
-      color: #666;
-    }
-    .parties {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding: 15px;
-      background: #f9f9f9;
-    }
-    .party {
-      width: 48%;
-    }
-    .party-title {
-      font-weight: bold;
-      text-transform: uppercase;
-      font-size: 11px;
-      color: #666;
+      font-weight: 700;
       margin-bottom: 5px;
     }
+    .company-details {
+      font-size: 11px;
+      color: #555;
+      line-height: 1.6;
+    }
+    .tax-id-badge {
+      display: inline-block;
+      background: #f0f0f0;
+      padding: 5px 15px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
     .invoice-meta {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 25px;
     }
     .meta-item {
       text-align: center;
-      padding: 10px 20px;
+      padding: 12px 25px;
       border: 1px solid #ddd;
+      background: #fafafa;
     }
     .meta-label {
-      font-size: 10px;
-      color: #666;
+      font-size: 9px;
+      color: #888;
       text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
     }
     .meta-value {
-      font-weight: bold;
       font-size: 14px;
+      font-weight: 700;
     }
-    .items-table th {
+
+    .parties-section {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    .party-box {
+      flex: 1;
+      padding: 15px;
+      background: #f8f9fa;
+      border-left: 3px solid #333;
+    }
+    .party-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .party-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .party-details {
+      font-size: 10px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .items-table {
+      margin-bottom: 20px;
+    }
+    .items-table thead th {
       background: #333;
       color: white;
-      font-size: 11px;
-      padding: 10px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 8px;
+      font-weight: 600;
     }
-    .items-table td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-    .tax-summary {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f9f9f9;
-    }
-    .totals {
-      width: 350px;
-      margin-left: auto;
-      margin-top: 20px;
-    }
-    .totals td {
-      padding: 8px;
+    .items-table tbody td {
+      padding: 12px 8px;
+      font-size: 10px;
       border-bottom: 1px solid #eee;
     }
-    .totals tr:last-child {
-      font-weight: bold;
+    .items-table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    .summary-section {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    .tax-summary {
+      flex: 1;
+      padding: 15px;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+    }
+    .tax-summary h4 {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: #555;
+    }
+    .tax-summary table td {
+      padding: 5px 0;
+      font-size: 11px;
+    }
+    .totals-table {
+      width: 320px;
+    }
+    .totals-table td {
+      padding: 8px 0;
+      font-size: 11px;
+    }
+    .totals-table tr:last-child {
+      font-weight: 700;
       font-size: 16px;
     }
-    .totals tr:last-child td {
+    .totals-table tr:last-child td {
+      padding-top: 12px;
       border-top: 2px solid #333;
-      border-bottom: none;
-      padding-top: 15px;
     }
-    .footer {
-      margin-top: 30px;
-      padding-top: 15px;
-      border-top: 1px solid #ddd;
+
+    .footer-section {
+      margin-top: auto;
+      padding-top: 20px;
+    }
+    .bank-details {
+      padding: 12px;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      margin-bottom: 15px;
       font-size: 10px;
-      color: #666;
+    }
+    .bank-details h4 {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .legal-footer {
+      text-align: center;
+      font-size: 9px;
+      color: #888;
+      padding: 15px 0;
+      border-top: 1px solid #eee;
     }
   </style>
 </head>
 <body>
-  <div class="invoice">
-    <div class="tax-header">
-      <div class="tax-title">TAX INVOICE</div>
-    </div>
+  <div class="invoice-page">
+    <div class="invoice-content">
+      <div class="tax-banner">TAX INVOICE</div>
 
-    <div class="company-section">
-      ${config.company.logo ? `<img src="${config.company.logo}" style="max-height: 50px; margin-bottom: 10px;" />` : ''}
-      <div class="company-name">${escapeHtml(config.company.name)}</div>
-      ${config.company.address ? `<div>${escapeHtml(config.company.address)}</div>` : ''}
-      ${config.showFields.taxId && config.company.taxId ? `<div class="tax-id">Tax ID: ${escapeHtml(config.company.taxId)}</div>` : ''}
-    </div>
+      <div class="company-header">
+        ${config.company.logo ? `<img class="company-logo-center" src="${config.company.logo}" /><br>` : ''}
+        <div class="company-name">${escapeHtml(config.company.name)}</div>
+        <div class="company-details">
+          ${config.company.address ? `${escapeHtml(config.company.address)}<br>` : ''}
+          ${config.company.phone ? `Tel: ${escapeHtml(config.company.phone)}` : ''}
+          ${config.company.phone && config.company.email ? ' | ' : ''}
+          ${config.company.email ? `${escapeHtml(config.company.email)}` : ''}
+          ${config.company.website ? `<br>${escapeHtml(config.company.website)}` : ''}
+        </div>
+        ${config.company.taxId ? `<div class="tax-id-badge">Tax Registration: ${escapeHtml(config.company.taxId)}</div>` : ''}
+      </div>
 
-    <div class="invoice-meta">
-      <div class="meta-item">
-        <div class="meta-label">Invoice Number</div>
-        <div class="meta-value">${escapeHtml(invoice.invoiceNumber)}</div>
+      <div class="invoice-meta">
+        <div class="meta-item">
+          <div class="meta-label">Invoice Number</div>
+          <div class="meta-value">${escapeHtml(invoice.invoiceNumber)}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Invoice Date</div>
+          <div class="meta-value">${formatDate(invoice.issueDate, config.dateFormat)}</div>
+        </div>
+        ${invoice.dueDate ? `
+        <div class="meta-item">
+          <div class="meta-label">Due Date</div>
+          <div class="meta-value">${formatDate(invoice.dueDate, config.dateFormat)}</div>
+        </div>
+        ` : ''}
       </div>
-      <div class="meta-item">
-        <div class="meta-label">Invoice Date</div>
-        <div class="meta-value">${formatDate(invoice.issueDate, config.dateFormat)}</div>
-      </div>
-      ${config.showFields.dueDate && invoice.dueDate ? `
-      <div class="meta-item">
-        <div class="meta-label">Due Date</div>
-        <div class="meta-value">${formatDate(invoice.dueDate, config.dateFormat)}</div>
-      </div>
-      ` : ''}
-    </div>
 
-    <div class="parties">
-      <div class="party">
-        <div class="party-title">From</div>
-        <div><strong>${escapeHtml(config.company.name)}</strong></div>
-        ${config.company.address ? `<div>${escapeHtml(config.company.address)}</div>` : ''}
-        ${config.company.phone ? `<div>Tel: ${escapeHtml(config.company.phone)}</div>` : ''}
+      <div class="parties-section">
+        <div class="party-box">
+          <div class="party-label">Supplier Details</div>
+          <div class="party-name">${escapeHtml(config.company.name)}</div>
+          <div class="party-details">
+            ${config.company.address ? `${escapeHtml(config.company.address)}<br>` : ''}
+            ${config.company.taxId ? `Tax ID: ${escapeHtml(config.company.taxId)}` : ''}
+          </div>
+        </div>
+        <div class="party-box">
+          <div class="party-label">Customer Details</div>
+          <div class="party-name">${escapeHtml(invoice.customer.name)}</div>
+          <div class="party-details">
+            ${invoice.customer.address?.line1 ? `${escapeHtml(invoice.customer.address.line1)}<br>` : ''}
+            ${invoice.customer.address?.city ? `${escapeHtml(invoice.customer.address.city)}` : ''}
+            ${invoice.customer.address?.state ? `, ${escapeHtml(invoice.customer.address.state)}` : ''}
+            ${invoice.customer.taxId ? `<br>Tax ID: ${escapeHtml(invoice.customer.taxId)}` : ''}
+          </div>
+        </div>
       </div>
-      <div class="party">
-        <div class="party-title">Bill To</div>
-        <div><strong>${escapeHtml(invoice.customer.name)}</strong></div>
-        ${config.showFields.customerAddress && invoice.customer.address?.line1 ? `<div>${escapeHtml(invoice.customer.address.line1)}</div>` : ''}
-        ${config.showFields.taxId && invoice.customer.taxId ? `<div>Tax ID: ${escapeHtml(invoice.customer.taxId)}</div>` : ''}
-      </div>
-    </div>
 
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Description</th>
-          <th class="text-center">Qty</th>
-          <th class="text-right">Unit Price</th>
-          <th class="text-right">Tax Rate</th>
-          <th class="text-right">Tax Amount</th>
-          <th class="text-right">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${invoice.lineItems.map((item, index) => `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${escapeHtml(item.description)}${item.hsnCode ? `<br><small>HSN: ${item.hsnCode}</small>` : ''}</td>
-          <td class="text-center">${formatNumber(item.quantity, config.numberFormat)}</td>
-          <td class="text-right">${formatMoney(item.unitPrice, config)}</td>
-          <td class="text-right">${item.taxRate ? item.taxRate + '%' : '0%'}</td>
-          <td class="text-right">${formatMoney(item.taxAmount ?? 0, config)}</td>
-          <td class="text-right">${formatMoney(item.lineTotal + (item.taxAmount ?? 0), config)}</td>
-        </tr>
-        `).join('')}
-      </tbody>
-    </table>
-
-    <div class="tax-summary">
-      <strong>Tax Summary</strong>
-      <table style="margin-top: 10px;">
-        <tr>
-          <td>Taxable Amount:</td>
-          <td class="text-right">${formatMoney(invoice.subtotal, config)}</td>
-        </tr>
-        <tr>
-          <td>Total Tax:</td>
-          <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
-        </tr>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 5%">#</th>
+            <th style="width: 35%">Description</th>
+            <th class="text-center" style="width: 10%">Qty</th>
+            <th class="text-right" style="width: 15%">Unit Price</th>
+            <th class="text-right" style="width: 10%">Tax %</th>
+            <th class="text-right" style="width: 12%">Tax Amt</th>
+            <th class="text-right" style="width: 13%">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${invoice.lineItems.map((item, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td><strong>${escapeHtml(item.description)}</strong>${item.sku ? `<br><small>SKU: ${item.sku}</small>` : ''}</td>
+            <td class="text-center">${formatNumber(item.quantity, config.numberFormat)}</td>
+            <td class="text-right">${formatMoney(item.unitPrice, config)}</td>
+            <td class="text-right">${item.taxRate ? `${item.taxRate}%` : '0%'}</td>
+            <td class="text-right">${formatMoney(item.taxAmount || 0, config)}</td>
+            <td class="text-right"><strong>${formatMoney(item.lineTotal + (item.taxAmount || 0), config)}</strong></td>
+          </tr>
+          `).join('')}
+        </tbody>
       </table>
+
+      <div class="summary-section no-break">
+        <div class="tax-summary">
+          <h4>Tax Summary</h4>
+          <table>
+            <tr>
+              <td>Taxable Amount:</td>
+              <td class="text-right">${formatMoney(invoice.subtotal, config)}</td>
+            </tr>
+            <tr>
+              <td>Total Tax:</td>
+              <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
+            </tr>
+          </table>
+        </div>
+        <table class="totals-table">
+          <tr>
+            <td>Subtotal:</td>
+            <td class="text-right">${formatMoney(invoice.subtotal, config)}</td>
+          </tr>
+          ${invoice.totalDiscount > 0 ? `
+          <tr>
+            <td>Discount:</td>
+            <td class="text-right">-${formatMoney(invoice.totalDiscount, config)}</td>
+          </tr>
+          ` : ''}
+          <tr>
+            <td>Tax:</td>
+            <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
+          </tr>
+          <tr>
+            <td>Grand Total:</td>
+            <td class="text-right">${formatMoney(invoice.grandTotal, config)}</td>
+          </tr>
+        </table>
+      </div>
     </div>
 
-    <table class="totals">
-      <tr>
-        <td>Subtotal:</td>
-        <td class="text-right">${formatMoney(invoice.subtotal, config)}</td>
-      </tr>
-      ${invoice.totalDiscount > 0 ? `
-      <tr>
-        <td>Discount:</td>
-        <td class="text-right">-${formatMoney(invoice.totalDiscount, config)}</td>
-      </tr>
+    <div class="footer-section no-break">
+      ${config.bankDetails ? `
+      <div class="bank-details">
+        <h4>Bank Details for Payment</h4>
+        Bank: ${escapeHtml(config.bankDetails.bankName)} |
+        Account Name: ${escapeHtml(config.bankDetails.accountName)} |
+        Account No: ${escapeHtml(config.bankDetails.accountNumber)}
+        ${config.bankDetails.swift ? ` | SWIFT: ${escapeHtml(config.bankDetails.swift)}` : ''}
+        ${config.bankDetails.iban ? ` | IBAN: ${escapeHtml(config.bankDetails.iban)}` : ''}
+      </div>
       ` : ''}
-      <tr>
-        <td>Tax:</td>
-        <td class="text-right">${formatMoney(invoice.totalTax, config)}</td>
-      </tr>
-      <tr>
-        <td>Grand Total:</td>
-        <td class="text-right">${formatMoney(invoice.grandTotal, config)}</td>
-      </tr>
-    </table>
 
-    ${config.showFields.bankDetails && config.bankDetails ? `
-    <div class="footer">
-      <strong>Bank Details for Payment:</strong><br>
-      Bank: ${escapeHtml(config.bankDetails.bankName)} |
-      Account Name: ${escapeHtml(config.bankDetails.accountName)} |
-      Account No: ${escapeHtml(config.bankDetails.accountNumber)}
-      ${config.bankDetails.swift ? ` | SWIFT: ${escapeHtml(config.bankDetails.swift)}` : ''}
-      ${config.bankDetails.iban ? ` | IBAN: ${escapeHtml(config.bankDetails.iban)}` : ''}
-    </div>
-    ` : ''}
+      ${config.footerText ? `<div style="font-size: 10px; color: #666; margin-bottom: 15px;">${escapeHtml(config.footerText)}</div>` : ''}
 
-    ${config.footerText ? `
-    <div class="footer">
-      ${escapeHtml(config.footerText)}
-    </div>
-    ` : ''}
-
-    <div class="footer" style="text-align: center; margin-top: 30px;">
-      This is a computer-generated invoice. No signature required.
+      <div class="legal-footer">
+        This is a computer-generated tax invoice. No signature required.<br>
+        ${escapeHtml(config.company.name)}${config.company.taxId ? ` | Tax Registration No: ${escapeHtml(config.company.taxId)}` : ''}
+      </div>
     </div>
   </div>
 </body>
@@ -739,7 +1291,8 @@ function renderTaxInvoiceTemplate(invoice: Invoice, config: GenerationConfig): s
 /**
  * Escape HTML special characters
  */
-function escapeHtml(text: string): string {
+function escapeHtml(text: string | undefined): string {
+  if (!text) return '';
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

@@ -21,8 +21,12 @@ export default function Layout() {
   const { resolvedTheme, setTheme } = useTheme();
 
   const currentStep = steps.findIndex((step) => location.pathname.includes(step.path));
+  const isGenerating = location.pathname.includes('/generate') && !location.pathname.includes('/download');
 
   const handleStepClick = (step: typeof steps[0], index: number) => {
+    // Block navigation while generating
+    if (isGenerating) return;
+
     // Only allow navigation to completed steps or current step
     if (index > currentStep) return;
 
@@ -34,6 +38,9 @@ export default function Layout() {
   };
 
   const handleBack = () => {
+    // Block navigation while generating
+    if (isGenerating) return;
+
     if (currentStep > 0) {
       const prevStep = steps[currentStep - 1];
       if (prevStep) {
@@ -61,7 +68,7 @@ export default function Layout() {
       <header className="bg-card border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {currentStep > 0 && (
+            {currentStep > 0 && !isGenerating && (
               <Button variant="ghost" size="icon" onClick={handleBack} title="Go back">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
@@ -99,7 +106,7 @@ export default function Layout() {
                 const Icon = step.icon;
                 const isActive = index === currentStep;
                 const isCompleted = index < currentStep;
-                const isClickable = index <= currentStep;
+                const isClickable = index <= currentStep && !isGenerating;
 
                 return (
                   <div

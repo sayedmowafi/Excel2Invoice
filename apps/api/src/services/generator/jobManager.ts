@@ -170,7 +170,7 @@ export async function startGenerationJob(
 
         return { path: filepath, folder };
       } catch (error) {
-        console.error(`Failed to generate PDF for ${invoice.invoiceNumber}:`, error);
+        // Silent fail - tracked in failedInvoices
         completedCount++;
         failedInvoices.push(invoice.invoiceNumber);
         return null;
@@ -178,7 +178,6 @@ export async function startGenerationJob(
     };
 
     // Process invoices in parallel batches
-    console.log(`Starting parallel PDF generation with concurrency: ${CONCURRENCY_LIMIT}`);
 
     const results = await processInBatches(invoices, processInvoice, CONCURRENCY_LIMIT);
 
@@ -218,7 +217,7 @@ export async function startGenerationJob(
       downloadUrl: `/api/generate/${sessionId}/download`,
     });
   } catch (error) {
-    console.error('Generation job failed:', error);
+    // Generation job failed
 
     jobStore.update(jobId, {
       status: 'failed',
@@ -252,7 +251,6 @@ async function createZipArchiveWithFolders(
     });
 
     output.on('close', () => {
-      console.log(`ZIP created: ${archive.pointer()} bytes`);
       resolve();
     });
 
