@@ -22,8 +22,8 @@ export default function GeneratePage() {
   const [error, setError] = useState<string | null>(null);
   const hasStarted = useRef(false);
 
-  // Fetch session to get total count
-  const { data: sessionData } = useQuery({
+  // Fetch session to get total count (preload for cache)
+  const { data: _sessionData } = useQuery({
     queryKey: ['session', sessionId],
     queryFn: () => api.getSession(sessionId!),
     enabled: !!sessionId,
