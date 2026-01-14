@@ -14,7 +14,7 @@ const router = Router();
  */
 router.post('/:sessionId', generateLimiter, async (req, res, next) => {
   try {
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId!;
     const session = sessionStore.get(sessionId);
 
     if (!session) {
@@ -72,7 +72,8 @@ router.post('/:sessionId', generateLimiter, async (req, res, next) => {
  * Get job status
  */
 router.get('/:sessionId/jobs/:jobId', (req, res) => {
-  const { sessionId, jobId } = req.params;
+  const sessionId = req.params.sessionId!;
+  const jobId = req.params.jobId!;
   const session = sessionStore.get(sessionId);
 
   if (!session) {
@@ -99,7 +100,7 @@ router.get('/:sessionId/jobs/:jobId', (req, res) => {
  */
 router.get('/:sessionId/download', downloadLimiter, async (req, res, next) => {
   try {
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId!;
     const session = sessionStore.get(sessionId);
 
     if (!session) {
@@ -132,7 +133,7 @@ router.get('/:sessionId/download', downloadLimiter, async (req, res, next) => {
  */
 router.get('/:sessionId/errors', async (req, res, next) => {
   try {
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId!;
     const session = sessionStore.get(sessionId);
 
     if (!session) {
