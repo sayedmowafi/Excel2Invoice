@@ -5,8 +5,9 @@ import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
 
-// Higher concurrency for faster generation (min 8, max 20)
-const CONCURRENCY_LIMIT = Math.min(20, Math.max(8, os.cpus().length * 2));
+// Concurrency limit - configurable via env var for low-memory environments
+// Default: 1 for safety (can be increased on servers with more RAM)
+const CONCURRENCY_LIMIT = parseInt(process.env.PDF_CONCURRENCY || '1');
 
 /**
  * In-memory job store
