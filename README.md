@@ -71,7 +71,7 @@ Sheet: invoice_items
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/ExotixNinja/Excel2Invoice.git
+git clone https://github.com/sayedmowafi/Excel2Invoice.git
 cd Excel2Invoice
 ```
 
@@ -203,4 +203,3 @@ This is a portfolio/educational project. Contributions, issues, and feature requ
 Email: sayed@sayedmowafi.dev
 
 Created as a portfolio project demonstrating full-stack engineering capabilities.
-"# Excel2Invoice" 
