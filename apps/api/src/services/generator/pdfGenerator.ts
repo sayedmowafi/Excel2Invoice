@@ -41,15 +41,15 @@ export async function generatePdf(
       waitUntil: 'networkidle0',
     });
 
-    // Generate PDF
+    // Generate PDF - no margins, let HTML handle padding
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: {
-        top: '20mm',
-        right: '15mm',
-        bottom: '20mm',
-        left: '15mm',
+        top: '0',
+        right: '0',
+        bottom: '0',
+        left: '0',
       },
     });
 
