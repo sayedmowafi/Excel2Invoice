@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Server, CheckCircle } from 'lucide-react';
+import { Loader2, Server } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const COLD_START_ENABLED = import.meta.env.VITE_COLD_START_SCREEN === 'true';
@@ -69,14 +69,10 @@ export default function ServerWakeup({ children }: ServerWakeupProps) {
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center space-y-6 p-8 max-w-md">
         <div className="flex justify-center">
-          {status === 'ready' ? (
-            <CheckCircle className="h-16 w-16 text-green-500" />
-          ) : (
-            <div className="relative">
-              <Server className="h-16 w-16 text-muted-foreground" />
-              <Loader2 className="h-8 w-8 text-primary animate-spin absolute -bottom-1 -right-1" />
-            </div>
-          )}
+          <div className="relative">
+            <Server className="h-16 w-16 text-muted-foreground" />
+            <Loader2 className="h-8 w-8 text-primary animate-spin absolute -bottom-1 -right-1" />
+          </div>
         </div>
 
         <div className="space-y-2">
