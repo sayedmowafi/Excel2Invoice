@@ -36,14 +36,21 @@ export async function generatePdf(
     // Render HTML template
     const html = renderTemplate(invoice, config);
 
+    // Set viewport to A4 dimensions (210mm x 297mm at 96dpi)
+    await page.setViewport({
+      width: 794,
+      height: 1123,
+      deviceScaleFactor: 1,
+    });
+
     // Set content
     await page.setContent(html, {
       waitUntil: 'networkidle0',
     });
 
-    // Generate PDF - no margins, let HTML handle padding
+    // Generate PDF - use CSS page size
     const pdfBuffer = await page.pdf({
-      format: 'A4',
+      preferCSSPageSize: true,
       printBackground: true,
       margin: {
         top: '0',

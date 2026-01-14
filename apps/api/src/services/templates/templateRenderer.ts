@@ -637,13 +637,26 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
   <style>
     ${commonStyles}
 
-    .invoice-page {
+    @page {
+      size: 210mm 297mm;
+      margin: 0;
+    }
+    html, body {
+      width: 210mm;
+      margin: 0 !important;
       padding: 0 !important;
+    }
+    .invoice-page {
+      width: 210mm;
+      padding: 0 !important;
+      margin: 0 !important;
     }
     .header {
       background: ${accentColor};
       color: white;
       padding: 25px 30px;
+      width: 210mm;
+      box-sizing: border-box;
       display: flex;
       justify-content: space-between;
       align-items: center;
