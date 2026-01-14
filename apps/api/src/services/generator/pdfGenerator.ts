@@ -16,6 +16,30 @@ async function getBrowser(): Promise<Browser> {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
+        // Memory optimization for 512MB environments
+        '--disable-extensions',
+        '--disable-background-networking',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-breakpad',
+        '--disable-component-extensions-with-background-pages',
+        '--disable-component-update',
+        '--disable-default-apps',
+        '--disable-features=TranslateUI',
+        '--disable-hang-monitor',
+        '--disable-ipc-flooding-protection',
+        '--disable-popup-blocking',
+        '--disable-prompt-on-repost',
+        '--disable-renderer-backgrounding',
+        '--disable-sync',
+        '--force-color-profile=srgb',
+        '--metrics-recording-only',
+        '--no-first-run',
+        '--password-store=basic',
+        '--use-mock-keychain',
+        '--single-process', // Important for low memory
+        '--memory-pressure-off',
+        '--max-old-space-size=256',
       ],
     });
   }
@@ -33,6 +57,9 @@ export async function generatePdf(
   const page = await browser.newPage();
 
   try {
+    // Disable cache and reduce memory usage
+    await page.setCacheEnabled(false);
+
     // Render HTML template
     const html = renderTemplate(invoice, config);
 
@@ -43,9 +70,9 @@ export async function generatePdf(
       deviceScaleFactor: 1,
     });
 
-    // Set content
+    // Set content - use domcontentloaded for faster/less memory
     await page.setContent(html, {
-      waitUntil: 'networkidle0',
+      waitUntil: 'domcontentloaded',
     });
 
     // Generate PDF - use CSS page size
@@ -63,6 +90,10 @@ export async function generatePdf(
     return Buffer.from(pdfBuffer);
   } finally {
     await page.close();
+    // Force garbage collection hint
+    if (global.gc) {
+      global.gc();
+    }
   }
 }
 
