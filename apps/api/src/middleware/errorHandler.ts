@@ -41,6 +41,9 @@ export function errorHandler(
     return;
   }
 
+  // Log all errors for debugging
+  console.error('Error:', err.message, err.stack);
+
   // Handle Zod validation errors
   if (err instanceof ZodError) {
     res.status(400).json({
