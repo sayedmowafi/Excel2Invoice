@@ -169,9 +169,23 @@ excel-to-invoice/
 ## Environment Variables
 
 ### API (apps/api/.env)
+
+Copy `.env.example` to `.env` and configure as needed:
+
 ```env
+# Server Configuration
 PORT=3001
 NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173
+
+# Rate Limiting (disabled by default)
+RATE_LIMIT_ENABLED=false              # Set to 'true' to enable
+RATE_LIMIT_WINDOW_MS=900000           # 15 min window for general API
+RATE_LIMIT_MAX_REQUESTS=100           # Max requests per window
+RATE_LIMIT_UPLOAD_WINDOW_MS=3600000   # 1 hour window for uploads
+RATE_LIMIT_UPLOAD_MAX=10              # Max uploads per hour
+RATE_LIMIT_GENERATE_WINDOW_MS=3600000 # 1 hour window for PDF generation
+RATE_LIMIT_GENERATE_MAX=5             # Max generations per hour
 ```
 
 ### Web (apps/web/.env)
