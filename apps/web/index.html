@@ -2,10 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon - switches based on system color scheme -->
+    <link rel="icon" type="image/svg+xml" href="/icon-light.svg" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/svg+xml" href="/icon-dark.svg" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" href="/icon-light.svg" media="(prefers-color-scheme: light)" />
+    <link rel="apple-touch-icon" href="/icon-dark.svg" media="(prefers-color-scheme: dark)" />
+
+    <!-- Theme color - matches system preference -->
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1419" media="(prefers-color-scheme: dark)" />
+
     <title>Excel to Invoice - Generate Professional PDF Invoices</title>
     <meta name="description" content="Transform Excel files into professional PDF invoices in bulk. Supports multiple formats, customizable templates, and batch processing." />
+    <meta name="author" content="Sayed Mowafi" />
   </head>
   <body>
     <div id="root"></div>
