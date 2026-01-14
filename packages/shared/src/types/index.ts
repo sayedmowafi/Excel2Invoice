@@ -51,6 +51,7 @@ export type {
   ColumnDetectionResponse,
   CompletedEvent,
   ConfigRequest,
+  DemoLimitInfo,
   EmailConfigRequest,
   EmailStatusResponse,
   EmailTestRequest,

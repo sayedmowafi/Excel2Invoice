@@ -185,12 +185,20 @@ router.post('/:id/validate', async (req, res, next) => {
       : 'flat_single_row'; // Will auto-detect multi-row during transformation
 
     // Transform Excel data to invoices
-    const { invoices, warnings } = await transformToInvoices(
+    const { invoices: allInvoices, warnings } = await transformToInvoices(
       session.filePath,
       session.columnMappings,
       format,
       session.selectedSheets
     );
+
+    // Apply demo limit if set (limit early so all UI shows correct count)
+    const maxInvoices = process.env.MAX_INVOICES ? parseInt(process.env.MAX_INVOICES) : 0;
+    const originalCount = allInvoices.length;
+    const invoices = maxInvoices > 0 && allInvoices.length > maxInvoices
+      ? allInvoices.slice(0, maxInvoices)
+      : allInvoices;
+    const wasLimited = maxInvoices > 0 && originalCount > maxInvoices;
 
     // Validate invoices
     const validationResult = validateInvoices(invoices);
@@ -213,7 +221,7 @@ router.post('/:id/validate', async (req, res, next) => {
       errors: validationResult.errorRows,
     };
 
-    // Update session
+    // Update session with limited invoices
     sessionStore.updateInvoices(id, invoices, stats);
     sessionStore.updateStep(id, 'validation');
 
@@ -223,6 +231,8 @@ router.post('/:id/validate', async (req, res, next) => {
         result: validationResult,
         invoices,
         stats,
+        // Include demo limit info for UI
+        demoLimit: wasLimited ? { applied: true, maxInvoices, originalCount } : undefined,
       },
     };
 

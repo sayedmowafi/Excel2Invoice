@@ -99,10 +99,17 @@ export interface RelationshipResponse {
 
 // ============ Validation Endpoints ============
 
+export interface DemoLimitInfo {
+  applied: boolean;
+  maxInvoices: number;
+  originalCount: number;
+}
+
 export interface ValidationResponse {
   result: ValidationResult;
   invoices: Invoice[];
   stats: ProcessingStats;
+  demoLimit?: DemoLimitInfo;
 }
 
 // ============ Configuration Endpoints ============
