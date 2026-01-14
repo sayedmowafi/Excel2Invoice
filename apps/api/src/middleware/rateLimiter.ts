@@ -54,3 +54,19 @@ export const generateLimiter = rateLimit({
   legacyHeaders: false,
   skip: () => !isEnabled,
 });
+
+// Download limiter - more lenient (allow a few downloads per session)
+export const downloadLimiter = rateLimit({
+  windowMs: 60000, // 1 minute window
+  max: 5, // 5 downloads per minute (prevents spam but allows retries)
+  message: {
+    success: false,
+    error: {
+      code: 'DOWNLOAD_RATE_LIMIT_EXCEEDED',
+      message: 'Too many download requests, please wait a moment.',
+    },
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => !isEnabled,
+});

@@ -4,6 +4,7 @@ import type { ApiResponse, GenerateResponse, JobStatusResponse } from '@excel-to
 import { AppError } from '../middleware/errorHandler.js';
 import { sessionStore } from '../services/sessionStore.js';
 import { jobStore, startGenerationJob } from '../services/generator/jobManager.js';
+import { generateLimiter, downloadLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
 
@@ -11,7 +12,7 @@ const router = Router();
  * POST /api/generate/:sessionId
  * Start PDF generation job
  */
-router.post('/:sessionId', async (req, res, next) => {
+router.post('/:sessionId', generateLimiter, async (req, res, next) => {
   try {
     const { sessionId } = req.params;
     const session = sessionStore.get(sessionId);
@@ -96,7 +97,7 @@ router.get('/:sessionId/jobs/:jobId', (req, res) => {
  * GET /api/generate/:sessionId/download
  * Download generated ZIP file
  */
-router.get('/:sessionId/download', async (req, res, next) => {
+router.get('/:sessionId/download', downloadLimiter, async (req, res, next) => {
   try {
     const { sessionId } = req.params;
     const session = sessionStore.get(sessionId);

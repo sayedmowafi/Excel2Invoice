@@ -7,7 +7,7 @@ import { sessionRouter } from './routes/session.js';
 import { generateRouter } from './routes/generate.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
-import { apiLimiter, uploadLimiter, generateLimiter } from './middleware/rateLimiter.js';
+import { apiLimiter, uploadLimiter } from './middleware/rateLimiter.js';
 import { setupSocketHandlers } from './services/socket.js';
 
 const app = express();
@@ -41,7 +41,7 @@ app.get('/health', (_req, res) => {
 // API routes
 app.use('/api/upload', uploadLimiter, uploadRouter);
 app.use('/api/sessions', sessionRouter);
-app.use('/api/generate', generateLimiter, generateRouter);
+app.use('/api/generate', generateRouter);
 
 // Error handler (must be last)
 app.use(errorHandler);
