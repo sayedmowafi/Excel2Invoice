@@ -10,7 +10,10 @@ import type {
   GenerationConfig,
 } from '@excel-to-invoice/shared';
 
-const BASE_URL = '/api';
+// In development, Vite proxy handles /api -> localhost:3001
+// In production, use the full API URL from environment variable
+const API_URL = import.meta.env.VITE_API_URL || '';
+const BASE_URL = `${API_URL}/api`;
 
 class ApiError extends Error {
   constructor(public code: string, message: string, public details?: unknown) {
