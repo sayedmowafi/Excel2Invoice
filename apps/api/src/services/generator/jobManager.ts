@@ -3,7 +3,6 @@ import type { Job, Invoice, GenerationConfig } from '@excel-to-invoice/shared';
 import { generatePdf } from './pdfGenerator.js';
 import path from 'path';
 import fs from 'fs/promises';
-import os from 'os';
 
 // Concurrency limit - configurable via env var for low-memory environments
 // Default: 1 for safety (can be increased on servers with more RAM)
