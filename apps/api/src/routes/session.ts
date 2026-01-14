@@ -240,6 +240,8 @@ router.post('/:id/config', (req, res) => {
   const { id } = req.params;
   const { config } = req.body as ConfigRequest;
 
+  console.log('Received config:', JSON.stringify(config, null, 2));
+
   const session = sessionStore.get(id);
 
   if (!session) {

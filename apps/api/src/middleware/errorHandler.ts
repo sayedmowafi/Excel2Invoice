@@ -43,6 +43,7 @@ export function errorHandler(
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
+    console.log('Zod validation errors:', JSON.stringify(err.errors, null, 2));
     res.status(400).json({
       success: false,
       error: {
