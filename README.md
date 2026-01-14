@@ -14,16 +14,26 @@ A web application that transforms Excel spreadsheets into professional PDF invoi
 
 ## Screenshots
 
-The application guides you through a simple workflow:
+### Upload Your Excel File
+![Upload Page](./docs/screenshots/upload_page.png)
 
-1. **Upload** - Drag and drop your Excel file
-2. **Sheet Selection** - For multi-sheet files, identify which sheet contains what data
-3. **Column Mapping** - Review and adjust auto-detected column mappings
-4. **Validation** - See validation results and fix any issues
-5. **Configuration** - Add your company info, logo, and customize settings
-6. **Preview** - Preview invoices before generating
-7. **Generate** - Watch real-time progress as PDFs are generated
-8. **Download** - Download your ZIP file with organized paid/unpaid folders
+### File Uploaded Successfully
+![Upload Successful](./docs/screenshots/upload_successful.png)
+
+### Map Columns Automatically
+![Map Columns](./docs/screenshots/map_columns.png)
+
+### Validate Your Data
+![Validate](./docs/screenshots/validate.png)
+
+### Configure Invoice Settings
+![Configure](./docs/screenshots/configure.png)
+
+### Preview Before Generating
+![Preview](./docs/screenshots/preview.png)
+
+### Download Your Invoices
+![Download](./docs/screenshots/download.png)
 
 ## Supported Excel Formats
 
