@@ -29,10 +29,16 @@ router.post('/:sessionId', async (req, res, next) => {
     }
 
     // Filter valid invoices only
-    const validInvoices = session.invoices.filter((inv) => inv.status !== 'error');
+    let validInvoices = session.invoices.filter((inv) => inv.status !== 'error');
 
     if (validInvoices.length === 0) {
       throw new AppError(400, 'NO_VALID_INVOICES', 'No valid invoices to generate');
+    }
+
+    // Apply demo limit if set
+    const maxInvoices = process.env.MAX_INVOICES ? parseInt(process.env.MAX_INVOICES) : 0;
+    if (maxInvoices > 0 && validInvoices.length > maxInvoices) {
+      validInvoices = validInvoices.slice(0, maxInvoices);
     }
 
     // Create job

@@ -24,3 +24,5 @@ services:
         value: "10"
       - key: RATE_LIMIT_GENERATE_MAX
         value: "5"
+      - key: MAX_INVOICES
+        value: "15"

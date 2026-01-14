@@ -1,9 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, CheckCircle, AlertCircle, AlertTriangle, ArrowRight, Download } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, AlertTriangle, ArrowRight, Download, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { api } from '@/services/api';
+
+// Demo limit - only applies when VITE_MAX_INVOICES is set
+const MAX_INVOICES = import.meta.env.VITE_MAX_INVOICES ? parseInt(import.meta.env.VITE_MAX_INVOICES) : 0;
 
 export default function ValidationPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -38,6 +41,10 @@ export default function ValidationPage() {
   }
 
   const { stats, result } = data ?? { stats: { total: 0, valid: 0, warnings: 0, errors: 0 }, result: null };
+
+  // Calculate how many invoices will actually be generated
+  const invoicesToGenerate = MAX_INVOICES > 0 ? Math.min(stats.valid, MAX_INVOICES) : stats.valid;
+  const isLimited = MAX_INVOICES > 0 && stats.valid > MAX_INVOICES;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -127,6 +134,27 @@ export default function ValidationPage() {
         </Card>
       )}
 
+      {/* Demo Limit Warning */}
+      {isLimited && (
+        <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-medium text-blue-800 dark:text-blue-200">Demo Limit Applied</p>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                  This demo is limited to {MAX_INVOICES} invoices per session.
+                  Only the first {MAX_INVOICES} of your {stats.valid} valid invoices will be generated.
+                </p>
+                <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
+                  Self-host the application for unlimited invoice generation.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Actions */}
       <div className="flex justify-between">
         <Button variant="outline" asChild>
@@ -137,7 +165,8 @@ export default function ValidationPage() {
         </Button>
         <Button onClick={() => navigate(`/session/${sessionId}/config`)}>
           <ArrowRight className="w-4 h-4 mr-2" />
-          Continue with {stats.valid} Valid Invoices
+          Continue with {invoicesToGenerate} Invoice{invoicesToGenerate !== 1 ? 's' : ''}
+          {isLimited && ` (limited)`}
         </Button>
       </div>
     </div>

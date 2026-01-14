@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { api } from '@/services/api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const IS_PRODUCTION = !!import.meta.env.VITE_API_URL;
 
 export default function GeneratePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -53,10 +54,12 @@ export default function GeneratePage() {
     // Set a timeout to show error if connection takes too long
     connectionTimeout = setTimeout(() => {
       if (!newSocket.connected) {
-        setError(`Cannot connect to API server at ${API_URL}. Make sure the API server is running (cd apps/api && npm run dev)`);
+        setError(IS_PRODUCTION
+          ? 'Server is temporarily unavailable. Please try again in a moment.'
+          : `Cannot connect to API server at ${API_URL}. Make sure the API server is running.`);
         setStatus('error');
       }
-    }, 10000);
+    }, 15000);
 
     newSocket.on('connect', () => {
       clearTimeout(connectionTimeout);
@@ -66,7 +69,9 @@ export default function GeneratePage() {
 
     newSocket.on('connect_error', () => {
       clearTimeout(connectionTimeout);
-      setError(`Cannot connect to API server. Make sure the API server is running on ${API_URL}`);
+      setError(IS_PRODUCTION
+        ? 'Server is temporarily unavailable. Please try again in a moment.'
+        : `Cannot connect to API server. Make sure the API server is running on ${API_URL}`);
       setStatus('error');
     });
 
@@ -144,17 +149,26 @@ export default function GeneratePage() {
             ) : status === 'error' ? (
               <div className="text-red-600 dark:text-red-400 text-center max-w-md">
                 <XCircle className="w-16 h-16 mx-auto mb-4" />
-                <p className="text-lg font-medium">Connection Failed</p>
+                <p className="text-lg font-medium">
+                  {IS_PRODUCTION ? 'Service Temporarily Unavailable' : 'Connection Failed'}
+                </p>
                 <p className="text-sm text-muted-foreground mt-2">{error}</p>
-                <div className="mt-4 p-4 bg-muted rounded-lg text-left text-sm text-foreground">
-                  <p className="font-medium mb-2">To fix this, run the API server:</p>
-                  <code className="block bg-background p-2 rounded font-mono text-xs">
-                    cd apps/api && npm run dev
-                  </code>
-                  <p className="mt-2 text-muted-foreground">
-                    The API server should be running on port 3001
+                {!IS_PRODUCTION && (
+                  <div className="mt-4 p-4 bg-muted rounded-lg text-left text-sm text-foreground">
+                    <p className="font-medium mb-2">To fix this, run the API server:</p>
+                    <code className="block bg-background p-2 rounded font-mono text-xs">
+                      cd apps/api && npm run dev
+                    </code>
+                    <p className="mt-2 text-muted-foreground">
+                      The API server should be running on port 3001
+                    </p>
+                  </div>
+                )}
+                {IS_PRODUCTION && (
+                  <p className="text-sm text-muted-foreground mt-4">
+                    The server may be waking up from sleep. Please wait a moment and try again.
                   </p>
-                </div>
+                )}
                 <Button
                   variant="outline"
                   className="mt-4"
