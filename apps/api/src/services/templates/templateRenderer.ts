@@ -637,16 +637,19 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
   <style>
     ${commonStyles}
 
+    .invoice-page {
+      padding: 0 !important;
+    }
     .header {
       background: ${accentColor};
       color: white;
       padding: 25px 30px;
-      margin: -15mm -20mm 25px -20mm;
-      width: 210mm;
-      box-sizing: border-box;
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    .page-content {
+      padding: 25px 20mm 15mm 20mm;
     }
     .header-left {
       display: flex;
@@ -821,21 +824,21 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
 </head>
 <body>
   <div class="invoice-page">
-    <div class="invoice-content">
-      <div class="header">
-        <div class="header-left">
-          ${config.company.logo ? `<img class="company-logo" src="${config.company.logo}" />` : ''}
-          <div>
-            <div class="company-name">${escapeHtml(config.company.name)}</div>
-            ${config.company.website ? `<div class="company-tagline">${escapeHtml(config.company.website)}</div>` : ''}
-          </div>
-        </div>
-        <div class="header-right">
-          <div class="invoice-label">Invoice</div>
-          <div class="invoice-number">#${escapeHtml(invoice.invoiceNumber)}</div>
+    <div class="header">
+      <div class="header-left">
+        ${config.company.logo ? `<img class="company-logo" src="${config.company.logo}" />` : ''}
+        <div>
+          <div class="company-name">${escapeHtml(config.company.name)}</div>
+          ${config.company.website ? `<div class="company-tagline">${escapeHtml(config.company.website)}</div>` : ''}
         </div>
       </div>
-
+      <div class="header-right">
+        <div class="invoice-label">Invoice</div>
+        <div class="invoice-number">#${escapeHtml(invoice.invoiceNumber)}</div>
+      </div>
+    </div>
+    <div class="page-content">
+    <div class="invoice-content">
       <div class="info-section">
         <div class="info-box">
           <div class="info-label">From</div>
@@ -946,6 +949,7 @@ function renderProfessionalTemplate(invoice: Invoice, config: GenerationConfig):
         This is a computer-generated invoice. | ${escapeHtml(config.company.name)}
         ${config.company.taxId ? ` | Tax ID: ${escapeHtml(config.company.taxId)}` : ''}
       </div>
+    </div>
     </div>
   </div>
 </body>
