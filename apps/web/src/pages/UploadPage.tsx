@@ -2,11 +2,14 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { useMutation } from '@tanstack/react-query';
-import { Upload, FileSpreadsheet, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, FileSpreadsheet, AlertCircle, Loader2, Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/services/api';
+
+// Demo limit - only shown when VITE_MAX_INVOICES is set
+const MAX_INVOICES = import.meta.env.VITE_MAX_INVOICES ? parseInt(import.meta.env.VITE_MAX_INVOICES) : 0;
 
 export default function UploadPage() {
   const navigate = useNavigate();
@@ -145,6 +148,18 @@ export default function UploadPage() {
               <li>Accounting software exports (QuickBooks, Xero, etc.)</li>
             </ul>
           </div>
+
+          {MAX_INVOICES > 0 && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  <span className="font-medium">Demo limit:</span> Maximum {MAX_INVOICES} invoices per session.
+                  Self-host for unlimited invoices.
+                </p>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

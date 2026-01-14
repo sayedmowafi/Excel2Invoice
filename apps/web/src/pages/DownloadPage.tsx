@@ -1,9 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Download, CheckCircle, FileSpreadsheet, RefreshCw } from 'lucide-react';
+import { Download, CheckCircle, FileSpreadsheet, RefreshCw, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { api } from '@/services/api';
+
+// Demo limit - only applied when VITE_MAX_INVOICES is set
+const MAX_INVOICES = import.meta.env.VITE_MAX_INVOICES ? parseInt(import.meta.env.VITE_MAX_INVOICES) : 0;
 
 export default function DownloadPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -16,6 +19,10 @@ export default function DownloadPage() {
   });
 
   const stats = data?.session.stats ?? { total: 0, valid: 0, warnings: 0, errors: 0 };
+
+  // Calculate actual generated count (limited by MAX_INVOICES if set)
+  const generatedCount = MAX_INVOICES > 0 ? Math.min(stats.valid, MAX_INVOICES) : stats.valid;
+  const wasLimited = MAX_INVOICES > 0 && stats.valid > MAX_INVOICES;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -30,7 +37,7 @@ export default function DownloadPage() {
         <CardContent>
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.valid}</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{generatedCount}</div>
               <p className="text-sm text-muted-foreground">Generated</p>
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
@@ -42,6 +49,18 @@ export default function DownloadPage() {
               <p className="text-sm text-muted-foreground">Skipped</p>
             </div>
           </div>
+
+          {wasLimited && (
+            <div className="mb-6 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  <span className="font-medium">Demo limit applied:</span> Generated {generatedCount} of {stats.valid} valid invoices.
+                  Self-host for unlimited invoices.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-3">
             <Button className="w-full" size="lg" asChild>

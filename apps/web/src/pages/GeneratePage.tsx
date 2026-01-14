@@ -115,7 +115,8 @@ export default function GeneratePage() {
     }
   }, [isConnected, generateMutation]);
 
-  const totalInvoices = sessionData?.session?.stats?.valid ?? progress.total;
+  // Use the total from progress/generate response (already limited by backend) rather than session stats
+  const totalInvoices = progress.total || generateMutation.data?.totalInvoices || 0;
 
   return (
     <div className="max-w-2xl mx-auto">
