@@ -38,8 +38,9 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
 WORKDIR /app
 
-# Copy package files from monorepo root
+# Copy package files and config from monorepo root
 COPY package*.json ./
+COPY tsconfig.base.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
 
