@@ -35,9 +35,23 @@ A web application that transforms Excel spreadsheets into professional PDF invoi
 ### Download Your Invoices
 ![Download](./docs/screenshots/download.png)
 
+## Invoice Templates
+
+4 professional templates to choose from:
+
+| Template | Description | Sample |
+|----------|-------------|--------|
+| **Simple** | Clean, minimal, text-focused | [View PDF](./docs/invoices/Simple.pdf) |
+| **Simple + Logo** | Simple with company logo header | [View PDF](./docs/invoices/Simple%20+%20Logo.pdf) |
+| **Professional** | Colored header, modern typography | [View PDF](./docs/invoices/Professional.pdf) |
+| **Tax Invoice** | Detailed tax breakdown, compliance-focused | [View PDF](./docs/invoices/Tax%20Invoice.pdf) |
+
 ## Supported Excel Formats
 
+The application supports 3 different Excel formats. Download sample files to test:
+
 ### Format A: Single Sheet (One Row = One Invoice)
+[Download Sample](./docs/excel/Format%20A.xlsx)
 ```
 | invoice_no | customer_name | item | qty | price | total |
 |------------|---------------|------|-----|-------|-------|
@@ -45,6 +59,7 @@ A web application that transforms Excel spreadsheets into professional PDF invoi
 ```
 
 ### Format B: Single Sheet (Multiple Rows = One Invoice)
+[Download Sample](./docs/excel/Format%20B.xlsx)
 ```
 | invoice_no | customer_name | item    | qty | price |
 |------------|---------------|---------|-----|-------|
@@ -53,6 +68,7 @@ A web application that transforms Excel spreadsheets into professional PDF invoi
 ```
 
 ### Format C: Multi-Sheet Relational
+[Download Sample](./docs/excel/Format%20C.xlsx)
 ```
 Sheet: customers
 | customer_id | name | email | company | address |
