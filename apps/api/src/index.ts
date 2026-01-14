@@ -51,7 +51,7 @@ setupSocketHandlers(io);
 const PORT = process.env.PORT ?? 3001;
 
 httpServer.listen(PORT, () => {
-  // Server started silently
+  console.log(`API server running on http://localhost:${PORT}`);
 });
 
 export { app, io };
