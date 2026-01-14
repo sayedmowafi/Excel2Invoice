@@ -46,19 +46,14 @@ const upload = multer({
  */
 router.post('/', upload.single('file'), async (req, res, next) => {
   try {
-    console.log('Upload request received');
-
     if (!req.file) {
       throw new AppError(400, 'NO_FILE', 'No file uploaded');
     }
 
     const { path: filePath, originalname, size } = req.file;
-    console.log('File uploaded:', originalname, 'Size:', size);
 
     // Parse Excel file
-    console.log('Parsing Excel file...');
     const sheets = await parseExcelFile(filePath);
-    console.log('Parsed sheets:', sheets.length);
 
     if (sheets.length === 0) {
       throw new AppError(400, 'FILE_EMPTY', 'No sheets found in the Excel file');
