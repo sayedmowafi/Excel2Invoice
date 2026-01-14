@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.gitignore
+*.md
+.env
+.env.*
+uploads
+output
+*.log
+.DS_Store
+apps/web
+docs
