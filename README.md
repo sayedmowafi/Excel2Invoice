@@ -2,6 +2,12 @@
 
 A web application that transforms Excel spreadsheets into professional PDF invoices in bulk. Perfect for businesses that need to convert invoice data from various sources (manual entry, accounting exports, ERP systems) into branded, professional PDF invoices.
 
+## Demo
+
+<p align="center">
+  <img src="./docs/demo-excel-to-invoice.gif" alt="Excel to Invoice Demo" width="100%">
+</p>
+
 ## Features
 
 - **Multi-format Excel Support**: Works with single-sheet files, multi-row invoices, and relational multi-sheet data (customers, invoices, line items)
