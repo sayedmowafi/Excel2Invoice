@@ -245,7 +245,6 @@ This is a portfolio/educational project. Contributions, issues, and feature requ
 
 ## Author
 
-**Sayed Mowafi**
-Email: sayed@sayedmowafi.dev
+**Sayed Mowafi** - [Portfolio](https://sayedmowafi.dev) | [GitHub](https://github.com/sayedmowafi)
 
 Created as a portfolio project demonstrating full-stack engineering capabilities.
