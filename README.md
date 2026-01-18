@@ -222,18 +222,9 @@ VITE_API_URL=http://localhost:3001
 - **Bank Details**: Add payment information to invoices
 
 ## License
+This project is licensed under the MIT License.
 
-This project is licensed under a custom non-commercial license.
-
-**You are free to:**
-- Share - copy and redistribute the material in any medium or format
-- Adapt - remix, transform, and build upon the material
-
-**Under the following terms:**
-- **Attribution** - You must give appropriate credit
-- **NonCommercial** - You may not use the material for commercial purposes
-
-**For commercial use or licensing inquiries, please contact the author at: sayed@sayedmowafi.dev**
+For commercial licensing inquiries, contact: sayed@sayedmowafi.dev
 
 ## Disclaimer
 
