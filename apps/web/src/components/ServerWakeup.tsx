@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Server } from 'lucide-react';
+import CubeLoader from './ui/cube-loader';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const COLD_START_ENABLED = import.meta.env.VITE_COLD_START_SCREEN === 'true';
@@ -64,50 +64,39 @@ export default function ServerWakeup({ children }: ServerWakeupProps) {
     return <>{children}</>;
   }
 
+  // Determine loading text based on status
+  const title = status === 'checking' ? 'Connecting' : 'Waking Up';
+  const subtitle = status === 'checking'
+    ? 'Connecting to server, please wait…'
+    : attempts < 10
+      ? 'Server is starting up…'
+      : attempts < 20
+        ? 'Almost there…'
+        : 'Taking longer than usual…';
+
   // Show loading screen
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center space-y-6 p-8 max-w-md">
-        <div className="flex justify-center">
-          <div className="relative">
-            <Server className="h-16 w-16 text-muted-foreground" />
-            <Loader2 className="h-8 w-8 text-primary animate-spin absolute -bottom-1 -right-1" />
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+      <CubeLoader
+        title={title}
+        subtitle={subtitle}
+        className="min-h-0"
+      />
+
+      {status === 'waking' && (
+        <div className="w-full max-w-xs space-y-2 mt-4">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-500 ease-out"
+              style={{ width: `${Math.min((attempts / 15) * 100, 95)}%` }}
+            />
           </div>
         </div>
+      )}
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">
-            {status === 'checking' ? 'Connecting to server...' : 'Waking up server...'}
-          </h1>
-          <p className="text-muted-foreground">
-            {status === 'checking'
-              ? 'Please wait while we connect to the server.'
-              : 'The server is starting up. This may take up to 30 seconds on first visit.'}
-          </p>
-        </div>
-
-        {status === 'waking' && (
-          <div className="space-y-2">
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-500 ease-out"
-                style={{ width: `${Math.min((attempts / 15) * 100, 95)}%` }}
-              />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {attempts < 10
-                ? 'Server is waking up...'
-                : attempts < 20
-                  ? 'Almost there...'
-                  : 'Taking longer than usual...'}
-            </p>
-          </div>
-        )}
-
-        <p className="text-xs text-muted-foreground/60">
-          This is a demo hosted on a free tier server that sleeps after inactivity.
-        </p>
-      </div>
+      <p className="text-xs text-muted-foreground/60 mt-6">
+        This is a demo hosted on a free tier server that sleeps after inactivity.
+      </p>
     </div>
   );
 }
